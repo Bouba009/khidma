@@ -40,7 +40,6 @@ jobs:
           mkdir -p app/src/main/java/com/khedmadz/app/data/repository
           mkdir -p app/src/main/java/com/khedmadz/app/presentation/theme
           mkdir -p app/src/main/java/com/khedmadz/app/presentation/navigation
-          mkdir -p app/src/main/java/com/khedmadz/app/presentation/components
           mkdir -p app/src/main/java/com/khedmadz/app/presentation/screens
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
@@ -87,7 +86,7 @@ jobs:
           }
           EOF
 
-          # 6. ملف app/build.gradle.kts
+          # 6. ملف app/build.gradle.kts (تم تصحيح buildTypes)
           cat << 'EOF' > app/build.gradle.kts
           plugins {
               id("com.android.application")
@@ -125,7 +124,8 @@ jobs:
                       signingConfig = signingConfigs.getByName("debug")
                   }
                   debug {
-                      applicationIdSuffix = ".debug"
+                      // تم إزالة applicationIdSuffix لمنع تعارض حزمة الـ Google Services
+                      isDebuggable = true
                   }
               }
 
@@ -198,7 +198,7 @@ jobs:
           }
           EOF
 
-          # 7. ملف google-services.json تجريبي لمنع فشل البناء إذا لم يُوفر Secret
+          # 7. ملف google-services.json المصحح (يحتوي على com.khedmadz.app و com.khedmadz.app.debug معاً)
           cat << 'EOF' > app/google-services.json
           {
             "project_info": {
@@ -212,6 +212,25 @@ jobs:
                   "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
                   "android_client_info": {
                     "package_name": "com.khedmadz.app"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyFakeKeyPlaceholderForBuildOnly12345"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:123456789012:android:abcdef1234567891",
+                  "android_client_info": {
+                    "package_name": "com.khedmadz.app.debug"
                   }
                 },
                 "oauth_client": [],
@@ -272,7 +291,7 @@ jobs:
           </manifest>
           EOF
 
-          # 9. ملفات النصوص المترجمة (Strings)
+          # 9. ملفات اللغات (Strings)
           cat << 'EOF' > app/src/main/res/values/strings.xml
           <resources>
               <string name="app_name">Khedma DZ</string>
@@ -404,7 +423,7 @@ jobs:
           )
           EOF
 
-          # 11. طبقة المستودع (Repository)
+          # 11. المستودع والبيانات (Repository)
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/data/repository/AppRepository.kt
           package com.khedmadz.app.data.repository
 
@@ -541,7 +560,6 @@ jobs:
           import androidx.compose.ui.Modifier
           import androidx.compose.ui.draw.clip
           import androidx.compose.ui.draw.scale
-          import androidx.compose.ui.draw.shadow
           import androidx.compose.ui.graphics.Brush
           import androidx.compose.ui.graphics.Color
           import androidx.compose.ui.platform.LocalContext
@@ -565,7 +583,6 @@ jobs:
           import com.khedmadz.app.presentation.theme.PrimaryGreen
           import kotlinx.coroutines.delay
 
-          // 1. Splash Screen
           @Composable
           fun SplashScreen(navController: NavController) {
               val scale = remember { Animatable(0.5f) }
@@ -601,7 +618,6 @@ jobs:
               }
           }
 
-          // 2. Login Screen
           @Composable
           fun LoginScreen(navController: NavController) {
               var email by remember { mutableStateOf("") }
@@ -622,7 +638,6 @@ jobs:
                   Text(stringResource(R.string.login_subtitle), color = Color.Gray, fontSize = 14.sp)
                   Spacer(modifier = Modifier.height(32.dp))
 
-                  // Role Selector
                   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                       FilterChip(
                           selected = selectedRole == UserRole.CLIENT,
@@ -673,9 +688,7 @@ jobs:
 
                   Spacer(modifier = Modifier.height(16.dp))
                   OutlinedButton(
-                      onClick = {
-                          navController.navigate(Screen.Home.route)
-                      },
+                      onClick = { navController.navigate(Screen.Home.route) },
                       modifier = Modifier.fillMaxWidth().height(50.dp),
                       shape = RoundedCornerShape(12.dp)
                   ) {
@@ -684,7 +697,6 @@ jobs:
               }
           }
 
-          // 3. Home Screen (Client)
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun HomeScreen(navController: NavController) {
@@ -713,7 +725,6 @@ jobs:
                           .padding(padding)
                           .padding(horizontal = 16.dp)
                   ) {
-                      // Location Header
                       Card(
                           shape = RoundedCornerShape(12.dp),
                           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -747,7 +758,6 @@ jobs:
 
                       Spacer(modifier = Modifier.height(14.dp))
 
-                      // 2-Columns Services Grid
                       val services = AppRepository.defaultServices.filter {
                           it.nameFr.contains(searchQuery, ignoreCase = true) || it.nameAr.contains(searchQuery)
                       }
@@ -804,7 +814,6 @@ jobs:
               }
           }
 
-          // 4. Providers List Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ProvidersScreen(navController: NavController, serviceId: String) {
@@ -874,7 +883,6 @@ jobs:
               }
           }
 
-          // 5. Google Maps Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun MapScreen(navController: NavController) {
@@ -906,7 +914,6 @@ jobs:
               }
           }
 
-          // 6. Create Service Request Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun CreateRequestScreen(navController: NavController, providerName: String, serviceType: String) {
@@ -979,7 +986,6 @@ jobs:
               }
           }
 
-          // 7. Provider Dashboard Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ProviderDashboardScreen(navController: NavController) {
@@ -1045,7 +1051,6 @@ jobs:
               }
           }
 
-          // 8. Chat Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ChatScreen(navController: NavController, contactName: String) {
@@ -1120,7 +1125,6 @@ jobs:
               }
           }
 
-          // 9. Profile Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ProfileScreen(navController: NavController) {
