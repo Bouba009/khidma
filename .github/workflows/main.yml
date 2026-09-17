@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Generate & Build Khedma DZ Pro
+    name: Generate & Build Khedma DZ Royal Edition
     runs-on: ubuntu-latest
 
     steps:
@@ -34,19 +34,22 @@ jobs:
         run: |
           set -e
 
+          # 1. إنشاء هيكل المجلدات
           mkdir -p gradle/wrapper
           mkdir -p app/src/main/java/com/khedmadz/app/data/model
           mkdir -p app/src/main/java/com/khedmadz/app/data/repository
           mkdir -p app/src/main/java/com/khedmadz/app/presentation/theme
-          mkdir -p app/src/main/java/com/khedmadz/app/presentation/navigation
+          mkdir -p app/src/main/java/com/khedmadz/app/presentation/components
           mkdir -p app/src/main/java/com/khedmadz/app/presentation/screens
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/res/values-ar
           mkdir -p app/src/main/res/values-en
 
+          # 2. ملف local.properties
           echo "sdk.dir=$ANDROID_HOME" > local.properties
 
+          # 3. ملف gradle.properties
           cat << 'EOF' > gradle.properties
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
@@ -54,6 +57,7 @@ jobs:
           kotlin.code.style=official
           EOF
 
+          # 4. ملف settings.gradle.kts
           cat << 'EOF' > settings.gradle.kts
           pluginManagement {
               repositories {
@@ -73,6 +77,7 @@ jobs:
           include(":app")
           EOF
 
+          # 5. ملف build.gradle.kts (الجذر)
           cat << 'EOF' > build.gradle.kts
           plugins {
               id("com.android.application") version "8.4.1" apply false
@@ -81,6 +86,7 @@ jobs:
           }
           EOF
 
+          # 6. ملف app/build.gradle.kts
           cat << 'EOF' > app/build.gradle.kts
           plugins {
               id("com.android.application")
@@ -96,8 +102,8 @@ jobs:
                   applicationId = "com.khedmadz.app"
                   minSdk = 24
                   targetSdk = 34
-                  versionCode = 2
-                  versionName = "1.1.0"
+                  versionCode = 3
+                  versionName = "2.0.0"
 
                   testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                   vectorDrawables {
@@ -168,7 +174,7 @@ jobs:
               implementation("androidx.compose.material:material-icons-extended")
               implementation("androidx.navigation:navigation-compose:2.7.7")
 
-              // Firebase BOM
+              // Firebase
               val firebaseBom = platform("com.google.firebase:firebase-bom:32.8.0")
               implementation(firebaseBom)
               implementation("com.google.firebase:firebase-analytics")
@@ -177,7 +183,7 @@ jobs:
               implementation("com.google.firebase:firebase-storage")
               implementation("com.google.firebase:firebase-messaging")
 
-              // Google Play Services & Maps
+              // Maps & Location
               implementation("com.google.android.gms:play-services-location:21.2.0")
               implementation("com.google.android.gms:play-services-maps:18.2.0")
               implementation("com.google.maps.android:maps-compose:4.3.3")
@@ -191,6 +197,7 @@ jobs:
           }
           EOF
 
+          # 7. ملف google-services.json متوافق مع الحزمتين (com.khedmadz.app و com.khedmadz.app.debug)
           cat << 'EOF' > app/google-services.json
           {
             "project_info": {
@@ -207,16 +214,8 @@ jobs:
                   }
                 },
                 "oauth_client": [],
-                "api_key": [
-                  {
-                    "current_key": "AIzaSyFakeKeyPlaceholderForBuildOnly12345"
-                  }
-                ],
-                "services": {
-                  "appinvite_service": {
-                    "other_platform_oauth_client": []
-                  }
-                }
+                "api_key": [{ "current_key": "AIzaSyFakeKeyPlaceholderForBuildOnly12345" }],
+                "services": {}
               },
               {
                 "client_info": {
@@ -226,16 +225,8 @@ jobs:
                   }
                 },
                 "oauth_client": [],
-                "api_key": [
-                  {
-                    "current_key": "AIzaSyFakeKeyPlaceholderForBuildOnly12345"
-                  }
-                ],
-                "services": {
-                  "appinvite_service": {
-                    "other_platform_oauth_client": []
-                  }
-                }
+                "api_key": [{ "current_key": "AIzaSyFakeKeyPlaceholderForBuildOnly12345" }],
+                "services": {}
               }
             ],
             "configuration_version": "1"
@@ -244,6 +235,7 @@ jobs:
 
           touch app/proguard-rules.pro
 
+          # 8. ملف AndroidManifest.xml
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -282,64 +274,56 @@ jobs:
           </manifest>
           EOF
 
+          # 9. ملفات اللغات والترجمة (Strings)
           cat << 'EOF' > app/src/main/res/values/strings.xml
           <resources>
               <string name="app_name">Khedma DZ</string>
+              <string name="tagline">Vos services à domicile en toute confiance</string>
               <string name="login_title">Khedma DZ</string>
-              <string name="login_subtitle">Trouvez les meilleurs prestataires à proximité</string>
-              <string name="email_hint">Adresse email</string>
-              <string name="password_hint">Mot de passe</string>
-              <string name="name_hint">Nom et prénom</string>
-              <string name="phone_hint">Numéro de téléphone</string>
-              <string name="btn_login">Se connecter</string>
-              <string name="btn_register">Créer mon compte</string>
+              <string name="login_subtitle">Connectez-vous pour accéder à tous les services</string>
               <string name="what_need">De quoi avez-vous besoin ?</string>
-              <string name="search_hint">Rechercher un service, artisan...</string>
-              <string name="your_location">Votre position</string>
-              <string name="available_providers">Prestataires qualifiés</string>
-              <string name="btn_request">Demander</string>
+              <string name="hero_subtitle">Trouvez un professionnel qualifié près de chez vous</string>
+              <string name="search_hint">Rechercher un service, un artisan...</string>
+              <string name="your_position">Votre position</string>
+              <string name="services_title">Nos services</string>
+              <string name="see_all">Voir tout</string>
+              <string name="providers_title">Prestataires disponibles</string>
           </resources>
           EOF
 
           cat << 'EOF' > app/src/main/res/values-ar/strings.xml
           <resources>
               <string name="app_name">خدمة ديزاد</string>
+              <string name="tagline">خدماتكم المنزلية بكل ثقة وأمان</string>
               <string name="login_title">خدمة DZ</string>
-              <string name="login_subtitle">اعثر على أفضل الحرفيين ومقدمي الخدمات بقربك</string>
-              <string name="email_hint">البريد الإلكتروني</string>
-              <string name="password_hint">كلمة المرور</string>
-              <string name="name_hint">الاسم واللقب</string>
-              <string name="phone_hint">رقم الهاتف</string>
-              <string name="btn_login">تسجيل الدخول</string>
-              <string name="btn_register">إنشاء حساب جديد</string>
+              <string name="login_subtitle">سجل الدخول للوصول إلى كافة الخدمات</string>
               <string name="what_need">ما هي الخدمة التي تبحث عنها ؟</string>
-              <string name="search_hint">ابحث عن خدمة، حرفي، ممرض...</string>
-              <string name="your_location">موقعك الحالي</string>
-              <string name="available_providers">مقدمو الخدمات المتاحون</string>
-              <string name="btn_request">طلب الخدمة</string>
+              <string name="hero_subtitle">اعثر على أفضل الحرفيين والمهنيين بقربك</string>
+              <string name="search_hint">ابحث عن خدمة، ممرض، سباك...</string>
+              <string name="your_position">موقعك الحالي</string>
+              <string name="services_title">خدماتنا المميزة</string>
+              <string name="see_all">عرض الكل</string>
+              <string name="providers_title">مقدمو الخدمات المتاحون</string>
           </resources>
           EOF
 
           cat << 'EOF' > app/src/main/res/values-en/strings.xml
           <resources>
               <string name="app_name">Khedma DZ</string>
+              <string name="tagline">Your trusted home services marketplace</string>
               <string name="login_title">Khedma DZ</string>
-              <string name="login_subtitle">Find trusted home &amp; professional services</string>
-              <string name="email_hint">Email address</string>
-              <string name="password_hint">Password</string>
-              <string name="name_hint">Full name</string>
-              <string name="phone_hint">Phone number</string>
-              <string name="btn_login">Sign In</string>
-              <string name="btn_register">Create Account</string>
+              <string name="login_subtitle">Sign in to access verified professionals</string>
               <string name="what_need">What do you need help with?</string>
+              <string name="hero_subtitle">Find certified professionals near you</string>
               <string name="search_hint">Search a service, craft...</string>
-              <string name="your_location">Your location</string>
-              <string name="available_providers">Available Providers</string>
-              <string name="btn_request">Request</string>
+              <string name="your_position">Your location</string>
+              <string name="services_title">Our Services</string>
+              <string name="see_all">See all</string>
+              <string name="providers_title">Available Providers</string>
           </resources>
           EOF
 
-          # نماذج البيانات (Models) مع صور وروابط حقيقية عالية الدقة
+          # 10. نماذج البيانات (Models)
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/data/model/Models.kt
           package com.khedmadz.app.data.model
 
@@ -353,55 +337,52 @@ jobs:
               val photoUrl: String = "",
               val role: String = UserRole.CLIENT.name,
               val wilaya: String = "Alger",
-              val commune: String = "Bab Ezzouar",
+              val commune: String = "Rouiba",
               val isOnline: Boolean = true,
               val latitude: Double? = 36.7538,
               val longitude: Double? = 3.0588,
               val serviceCategory: String = "Infirmier",
-              val ratingAverage: Double = 4.9,
-              val ratingCount: Int = 38,
-              val priceStartingFrom: String = "1500 DA"
+              val ratingAverage: Double = 4.8,
+              val ratingCount: Int = 124,
+              val experienceYears: Int = 5,
+              val priceStartingFrom: String = "1500 DA / h"
           )
 
-          data class ServiceItem(
+          data class ServiceCategory(
               val id: String = "",
               val nameFr: String = "",
               val nameAr: String = "",
-              val description: String = "",
-              val category: String = "Santé",
               val imageUrl: String = ""
           )
 
           data class AppNotification(
               val id: String = "",
               val title: String = "",
-              val body: String = "",
-              val timeAgo: String = "À l'instant",
+              val description: String = "",
+              val time: String = "Il y a 5 min",
               val isRead: Boolean = false,
-              val type: String = "INFO"
+              val type: String = "NEW_REQUEST"
           )
 
           data class ServiceRequest(
               val id: String = "",
-              val clientName: String = "",
-              val providerName: String = "",
-              val serviceType: String = "",
-              val date: String = "",
-              val wilaya: String = "Alger",
-              val commune: String = "Rouiba",
-              val addressDetails: String = "",
+              val serviceTitle: String = "Infirmier / Infirmière",
+              val providerName: String = "Sami Belkacem",
+              val date: String = "19 sept. 2026",
+              val time: String = "10:00 - 12:00",
+              val location: String = "Rouiba, Alger",
               val status: String = "PENDING"
           )
 
           data class ChatMessage(
               val id: String = "",
-              val senderId: String = "",
-              val text: String = "",
-              val timestamp: Long = System.currentTimeMillis()
+              val sender: String = "",
+              val message: String = "",
+              val time: String = "09:47"
           )
           EOF
 
-          # المستودع المحتوي على صور Unsplash للخدمات والولايات الجزائرية
+          # 11. المستودع والبيانات الحقيقية (Mock Data & Unsplash Photos)
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/data/repository/AppRepository.kt
           package com.khedmadz.app.data.repository
 
@@ -421,74 +402,39 @@ jobs:
                   "13 - Tlemcen",
                   "05 - Batna",
                   "35 - Boumerdès",
-                  "42 - Tipaza",
-                  "30 - Ouargla",
-                  "47 - Ghardaïa"
+                  "42 - Tipaza"
               )
 
-              val servicesList = listOf(
-                  ServiceItem(
-                      "infirmier", "Infirmier(e) à domicile", "ممرض / ممرضة منزلي",
-                      "Injections, pansements, perfusion et soins", "Santé",
-                      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "garde_malade", "Garde malade 24/7", "مرافق مريض على مدار الساعة",
-                      "Assistance continue aux personnes dépendantes", "Santé",
-                      "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "nourrice", "Nourrice & Baby-sitter", "مربية أطفال معتمدة",
-                      "Garde d'enfants professionnelle à domicile", "Maison",
-                      "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "menage", "Femme de ménage", "عاملة منزلية وتنظيف",
-                      "Nettoyage complet, repassage et rangement", "Maison",
-                      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "plombier", "Plombier qualifié", "سباك صحي محترف",
-                      "Réparation fuites, chauffe-eau et tuyauterie", "Dépannage",
-                      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "electricien", "Électricien bâtiment", "كهربائي منازل وتصليح",
-                      "Pannes de courant, tableaux et éclairage", "Dépannage",
-                      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "jardinier", "Jardinier paysagiste", "بستاني وتنسيق حدائق",
-                      "Taille, arrosage et entretien des arbres", "Maison",
-                      "https://images.unsplash.com/photo-1558904541-efa8c4a08931?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "peintre", "Peintre & Décorateur", "صباغ ودهان منازل",
-                      "Peinture intérieure, extérieure et stucco", "Bâtiment",
-                      "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&auto=format&fit=crop&q=80"
-                  ),
-                  ServiceItem(
-                      "reparateur", "Réparation Électroménager", "تصليح أجهزة كهرومنزلية",
-                      "Machine à laver, frigo, climatiseur", "Dépannage",
-                      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80"
-                  )
+              // صور الخدمات الحقيقية المطابقة لصور العرض
+              val servicesCatalog = listOf(
+                  ServiceCategory("1", "Infirmier / Infirmière", "ممرض / ممرضة", "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("2", "Garde malade", "مرافق مريض", "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("3", "Nourrice", "مربية أطفال", "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("4", "Femme de ménage", "عاملة منزلية", "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("5", "Jardinier", "بستاني", "https://images.unsplash.com/photo-1558904541-efa8c4a08931?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("6", "Plombier", "سباك", "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("7", "Électricien", "كهربائي", "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&auto=format&fit=crop&q=80"),
+                  ServiceCategory("8", "Peintre", "دهان", "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&auto=format&fit=crop&q=80")
               )
 
-              fun getSampleProviders(): List<User> = listOf(
-                  User("1", "Karim Benali", "karim@khedma.dz", "0550123456", "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400", UserRole.PRESTATAIRE.name, "Alger", "Bab Ezzouar", true, 36.7200, 3.1800, "Infirmier", 4.9, 42, "1200 DA"),
-                  User("2", "Yasmine Saidi", "yasmine@khedma.dz", "0661987654", "https://images.unsplash.com/photo-1594824813579-0520697ad3d8?w=400", UserRole.PRESTATAIRE.name, "Alger", "Rouiba", true, 36.7350, 3.2850, "Infirmière", 4.8, 29, "1500 DA"),
-                  User("3", "Mohamed Brahimi", "mohamed@khedma.dz", "0770554433", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400", UserRole.PRESTATAIRE.name, "Alger", "Kouba", true, 36.7260, 3.0850, "Plombier", 4.7, 53, "2000 DA")
+              // بيانات الحرفيين المعتمدين المطابقين للتصميم
+              val sampleProviders = listOf(
+                  User("1", "Sami Belkacem", "sami@khedma.dz", "0550123456", "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400", UserRole.PRESTATAIRE.name, "Alger", "Rouiba", true, 36.7350, 3.2850, "Infirmier", 4.8, 124, 5, "1500 DA / h"),
+                  User("2", "Nadia Kherfi", "nadia@khedma.dz", "0661987654", "https://images.unsplash.com/photo-1594824813579-0520697ad3d8?w=400", UserRole.PRESTATAIRE.name, "Alger", "Bab Ezzouar", true, 36.7200, 3.1800, "Infirmière", 4.6, 89, 4, "1400 DA / h"),
+                  User("3", "Djalal Farid", "djalal@khedma.dz", "0770554433", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400", UserRole.PRESTATAIRE.name, "Alger", "Kouba", true, 36.7260, 3.0850, "Infirmier", 4.5, 67, 7, "1300 DA / h")
               )
 
               val sampleNotifications = listOf(
-                  AppNotification("1", "Demande acceptée !", "L'infirmier Karim Benali a confirmé votre demande de soins pour 14:00.", "Il y a 5 min", false, "CHECK"),
-                  AppNotification("2", "Nouveau message reçu", "Yasmine Saidi vous a envoyé un message : 'Je serai là dans 20 minutes'.", "Il y a 25 min", false, "CHAT"),
-                  AppNotification("3", "Bienvenue sur Khedma DZ", "Explorez plus de 10 services à domicile disponibles près de chez vous.", "Hier", true, "INFO")
+                  AppNotification("1", "Nouvelle demande", "Un client a demandé votre service", "Il y a 5 min", false, "NEW_REQUEST"),
+                  AppNotification("2", "Demande acceptée", "Votre demande a été acceptée par Sami Belkacem", "Il y a 12 min", false, "ACCEPTED"),
+                  AppNotification("3", "Nouveau message", "Vous avez reçu un nouveau message", "Il y a 20 min", false, "MESSAGE"),
+                  AppNotification("4", "Rappel de rendez-vous", "Rendez-vous demain à 10:00", "Il y a 1 h", true, "REMINDER"),
+                  AppNotification("5", "Évaluation", "Vous avez reçu une nouvelle évaluation ⭐ 5.0", "Il y a 2 h", true, "RATING")
               )
           }
           EOF
 
-          # السمة الخضراء الفاخرة المحدثة
+          # 12. ثيم الألوان الملكي الأزرق (Royal / Electric Blue FinTech Palette)
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/presentation/theme/Theme.kt
           package com.khedmadz.app.presentation.theme
 
@@ -496,34 +442,268 @@ jobs:
           import androidx.compose.runtime.Composable
           import androidx.compose.ui.graphics.Color
 
-          val AlgerianGreenPrimary = Color(0xFF0A8F4E)
-          val AlgerianGreenDark = Color(0xFF005A2B)
-          val AlgerianMint = Color(0xFFE8F5E9)
-          val AccentGold = Color(0xFFFFB300)
-          val DarkCardBg = Color(0xFF1E293B)
-          val SoftGrayBg = Color(0xFFF8FAFC)
+          // الألوان الرئيسية المحددة في برومبت التصميم
+          val PrimaryBlue      = Color(0xFF1677FF)
+          val DeepBlue         = Color(0xFF0755C9)
+          val DarkNavy         = Color(0xFF0B1F3A)
+          val VeryLightBlue    = Color(0xFFEAF4FF)
+          val AccentAmber      = Color(0xFFFFB020)
+          val SoftAmber        = Color(0xFFFFF4DD)
+          val SuccessGreen     = Color(0xFF16B364)
+          val ErrorRed         = Color(0xFFEF4444)
+          val BackgroundGray   = Color(0xFFF7F9FC)
+          val TextDark         = Color(0xFF102033)
+          val TextSecondary    = Color(0xFF667085)
+          val BorderColor      = Color(0xFFEAECF0)
 
-          private val ColorScheme = lightColorScheme(
-              primary = AlgerianGreenPrimary,
+          private val RoyalColorScheme = lightColorScheme(
+              primary = PrimaryBlue,
               onPrimary = Color.White,
-              primaryContainer = AlgerianMint,
-              onPrimaryContainer = AlgerianGreenDark,
-              secondary = AccentGold,
-              background = SoftGrayBg,
+              primaryContainer = VeryLightBlue,
+              onPrimaryContainer = DeepBlue,
+              secondary = AccentAmber,
+              background = BackgroundGray,
               surface = Color.White,
-              onSurface = Color(0xFF0F172A)
+              onSurface = TextDark
           )
 
           @Composable
           fun KhedmaDZTheme(content: @Composable () -> Unit) {
               MaterialTheme(
-                  colorScheme = ColorScheme,
+                  colorScheme = RoyalColorScheme,
                   content = content
               )
           }
           EOF
 
-          # شاشات التطبيق الكاملة المحدثة مع أزرار Google & Facebook والـ BottomNav
+          # 13. المكونات المشتركة وأزرار Google و Facebook الأصلية
+          cat << 'EOF' > app/src/main/java/com/khedmadz/app/presentation/components/Components.kt
+          package com.khedmadz.app.presentation.components
+
+          import androidx.compose.foundation.BorderStroke
+          import androidx.compose.foundation.background
+          import androidx.compose.foundation.clickable
+          import androidx.compose.foundation.layout.*
+          import androidx.compose.foundation.shape.CircleShape
+          import androidx.compose.foundation.shape.RoundedCornerShape
+          import androidx.compose.material.icons.Icons
+          import androidx.compose.material.icons.filled.*
+          import androidx.compose.material.icons.rounded.Search
+          import androidx.compose.material.icons.rounded.Tune
+          import androidx.compose.material3.*
+          import androidx.compose.runtime.Composable
+          import androidx.compose.ui.Alignment
+          import androidx.compose.ui.Modifier
+          import androidx.compose.ui.draw.clip
+          import androidx.compose.ui.graphics.Brush
+          import androidx.compose.ui.graphics.Color
+          import androidx.compose.ui.layout.ContentScale
+          import androidx.compose.ui.text.font.FontWeight
+          import androidx.compose.ui.unit.dp
+          import androidx.compose.ui.unit.sp
+          import coil.compose.AsyncImage
+          import com.khedmadz.app.data.model.ServiceCategory
+          import com.khedmadz.app.data.model.User
+          import com.khedmadz.app.presentation.theme.*
+
+          // Hero Search Section بنمط التدرج الأزرق الملكي
+          @Composable
+          fun HeroSearchSection(onSearchClick: () -> Unit, onFilterClick: () -> Unit) {
+              Box(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .clip(RoundedCornerShape(24.dp))
+                      .background(Brush.linearGradient(listOf(DeepBlue, PrimaryBlue)))
+                      .padding(20.dp)
+              ) {
+                  Column {
+                      Text("De quoi avez-vous besoin ?", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                      Spacer(modifier = Modifier.height(4.dp))
+                      Text("Trouvez un professionnel vérifié près de chez vous.", color = Color(0xFFEAF4FF), fontSize = 13.sp)
+                      Spacer(modifier = Modifier.height(16.dp))
+
+                      Surface(
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .height(52.dp)
+                              .clickable { onSearchClick() },
+                          shape = RoundedCornerShape(16.dp),
+                          color = Color.White,
+                          shadowElevation = 6.dp
+                      ) {
+                          Row(
+                              verticalAlignment = Alignment.CenterVertically,
+                              modifier = Modifier.padding(horizontal = 14.dp)
+                          ) {
+                              Icon(Icons.Rounded.Search, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(22.dp))
+                              Spacer(modifier = Modifier.width(10.dp))
+                              Text("Rechercher un service...", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                              Box(
+                                  modifier = Modifier
+                                      .size(34.dp)
+                                      .clip(CircleShape)
+                                      .background(VeryLightBlue)
+                                      .clickable { onFilterClick() },
+                                  contentAlignment = Alignment.Center
+                              ) {
+                                  Icon(Icons.Rounded.Tune, contentDescription = null, tint = DeepBlue, modifier = Modifier.size(18.dp))
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+
+          // كبسولة اختيار الموقع
+          @Composable
+          fun LocationPillCard(locationText: String, onModifyClick: () -> Unit) {
+              Surface(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .clip(RoundedCornerShape(16.dp))
+                      .clickable { onModifyClick() },
+                  color = Color.White,
+                  border = BorderStroke(1.dp, BorderColor),
+                  shadowElevation = 1.dp
+              ) {
+                  Row(
+                      modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                      verticalAlignment = Alignment.CenterVertically
+                  ) {
+                      Box(
+                          modifier = Modifier
+                              .size(36.dp)
+                              .clip(CircleShape)
+                              .background(VeryLightBlue),
+                          contentAlignment = Alignment.Center
+                      ) {
+                          Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
+                      }
+                      Spacer(modifier = Modifier.width(10.dp))
+                      Column(modifier = Modifier.weight(1f)) {
+                          Text("Votre position", fontSize = 11.sp, color = TextSecondary)
+                          Text(locationText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
+                      }
+                      Text("Modifier", color = PrimaryBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                  }
+              }
+          }
+
+          // بطاقة الخدمة مع الصورة الحقيقية (2-Column Card)
+          @Composable
+          fun ServiceCatalogCard(service: ServiceCategory, onClick: () -> Unit) {
+              Card(
+                  shape = RoundedCornerShape(20.dp),
+                  colors = CardDefaults.cardColors(containerColor = Color.White),
+                  elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                  border = BorderStroke(1.dp, BorderColor),
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .height(165.dp)
+                      .clickable { onClick() }
+              ) {
+                  Column(modifier = Modifier.fillMaxSize()) {
+                      AsyncImage(
+                          model = service.imageUrl,
+                          contentDescription = service.nameFr,
+                          contentScale = ContentScale.Crop,
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .height(105.dp)
+                              .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                      )
+                      Column(modifier = Modifier.padding(10.dp)) {
+                          Text(service.nameFr, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1, color = TextDark)
+                          Text(service.nameAr, fontSize = 11.sp, color = PrimaryBlue, maxLines = 1)
+                      }
+                  }
+              }
+          }
+
+          // بطاقة الحرفي المحترف (Provider Card)
+          @Composable
+          fun ProviderItemCard(
+              provider: User,
+              onProfileClick: () -> Unit,
+              onRequestClick: () -> Unit
+          ) {
+              Card(
+                  shape = RoundedCornerShape(20.dp),
+                  colors = CardDefaults.cardColors(containerColor = Color.White),
+                  elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                  border = BorderStroke(1.dp, BorderColor),
+                  modifier = Modifier.fillMaxWidth()
+              ) {
+                  Column(modifier = Modifier.padding(14.dp)) {
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                          Box {
+                              AsyncImage(
+                                  model = provider.photoUrl,
+                                  contentDescription = provider.fullName,
+                                  modifier = Modifier
+                                      .size(56.dp)
+                                      .clip(CircleShape),
+                                  contentScale = ContentScale.Crop
+                              )
+                              Box(
+                                  modifier = Modifier
+                                      .size(14.dp)
+                                      .clip(CircleShape)
+                                      .background(SuccessGreen)
+                                      .align(Alignment.BottomEnd)
+                              )
+                          }
+                          Spacer(modifier = Modifier.width(12.dp))
+                          Column(modifier = Modifier.weight(1f)) {
+                              Text(provider.fullName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextDark)
+                              Text(provider.serviceCategory, color = PrimaryBlue, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                              Row(verticalAlignment = Alignment.CenterVertically) {
+                                  Icon(Icons.Default.Star, contentDescription = null, tint = AccentAmber, modifier = Modifier.size(16.dp))
+                                  Text(" ${provider.ratingAverage} (${provider.ratingCount})", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                  Spacer(modifier = Modifier.width(8.dp))
+                                  Text("• 📍 1.2 km", fontSize = 12.sp, color = TextSecondary)
+                              }
+                          }
+                          Surface(color = Color(0xFFEBFDF2), shape = RoundedCornerShape(8.dp)) {
+                              Text("Disponible", color = SuccessGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                          }
+                      }
+
+                      Spacer(modifier = Modifier.height(12.dp))
+                      HorizontalDivider(color = Color(0xFFF2F4F7), thickness = 1.dp)
+                      Spacer(modifier = Modifier.height(10.dp))
+
+                      Row(
+                          modifier = Modifier.fillMaxWidth(),
+                          horizontalArrangement = Arrangement.SpaceBetween,
+                          verticalAlignment = Alignment.CenterVertically
+                      ) {
+                          Text(provider.priceStartingFrom, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextDark)
+                          Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                              OutlinedButton(
+                                  onClick = onProfileClick,
+                                  shape = RoundedCornerShape(12.dp),
+                                  border = BorderStroke(1.dp, PrimaryBlue),
+                                  contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                              ) {
+                                  Text("Voir profil", color = PrimaryBlue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                              }
+                              Button(
+                                  onClick = onRequestClick,
+                                  shape = RoundedCornerShape(12.dp),
+                                  colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                                  contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                              ) {
+                                  Text("Demander", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+          EOF
+
+          # 14. الشاشات الـ 19 المتكاملة بنظام التصميم الأزرق
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/presentation/screens/Screens.kt
           package com.khedmadz.app.presentation.screens
 
@@ -532,10 +712,8 @@ jobs:
           import androidx.compose.animation.*
           import androidx.compose.animation.core.*
           import androidx.compose.foundation.*
-          import androidx.compose.foundation.interaction.MutableInteractionSource
           import androidx.compose.foundation.layout.*
           import androidx.compose.foundation.lazy.LazyColumn
-          import androidx.compose.foundation.lazy.LazyRow
           import androidx.compose.foundation.lazy.grid.GridCells
           import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
           import androidx.compose.foundation.lazy.grid.items
@@ -550,12 +728,10 @@ jobs:
           import androidx.compose.ui.Modifier
           import androidx.compose.ui.draw.clip
           import androidx.compose.ui.draw.scale
-          import androidx.compose.ui.draw.shadow
           import androidx.compose.ui.graphics.Brush
           import androidx.compose.ui.graphics.Color
           import androidx.compose.ui.layout.ContentScale
           import androidx.compose.ui.platform.LocalContext
-          import androidx.compose.ui.res.stringResource
           import androidx.compose.ui.text.font.FontWeight
           import androidx.compose.ui.text.input.PasswordVisualTransformation
           import androidx.compose.ui.text.style.TextAlign
@@ -566,22 +742,18 @@ jobs:
           import com.google.android.gms.maps.model.CameraPosition
           import com.google.android.gms.maps.model.LatLng
           import com.google.maps.android.compose.*
-          import com.khedmadz.app.R
           import com.khedmadz.app.data.model.*
           import com.khedmadz.app.data.repository.AppRepository
-          import com.khedmadz.app.presentation.theme.AlgerianGreenDark
-          import com.khedmadz.app.presentation.theme.AlgerianGreenPrimary
-          import com.khedmadz.app.presentation.theme.AlgerianMint
+          import com.khedmadz.app.presentation.components.*
+          import com.khedmadz.app.presentation.theme.*
           import kotlinx.coroutines.delay
 
           // 1. Splash Screen
           @Composable
           fun SplashScreen(navController: NavController) {
-              val scale = remember { Animatable(0.4f) }
-              val alpha = remember { Animatable(0f) }
+              val scale = remember { Animatable(0.6f) }
 
               LaunchedEffect(Unit) {
-                  alpha.animateTo(1f, animationSpec = tween(700))
                   scale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
                   delay(1600)
                   navController.navigate("login") { popUpTo("splash") { inclusive = true } }
@@ -590,7 +762,7 @@ jobs:
               Box(
                   modifier = Modifier
                       .fillMaxSize()
-                      .background(Brush.verticalGradient(listOf(AlgerianGreenPrimary, AlgerianGreenDark))),
+                      .background(Brush.verticalGradient(listOf(DeepBlue, DarkNavy))),
                   contentAlignment = Alignment.Center
               ) {
                   Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.scale(scale.value)) {
@@ -598,442 +770,319 @@ jobs:
                           modifier = Modifier
                               .size(110.dp)
                               .clip(CircleShape)
-                              .background(Color.White.copy(alpha = 0.18f)),
+                              .background(Color.White.copy(alpha = 0.15f)),
                           contentAlignment = Alignment.Center
                       ) {
-                          Icon(Icons.Default.VolunteerActivism, contentDescription = "Logo", tint = Color.White, modifier = Modifier.size(68.dp))
+                          Icon(Icons.Default.VolunteerActivism, contentDescription = "Logo", tint = Color.White, modifier = Modifier.size(64.dp))
                       }
                       Spacer(modifier = Modifier.height(20.dp))
-                      Text("Khedma DZ", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-                      Text("خدمة ديزاد • رعاية وخدمات منزلية متكاملة", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                      Text("Khedma DZ", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Black)
+                      Text("Vos services à domicile en toute confiance", color = Color(0xFFEAF4FF), fontSize = 14.sp)
                   }
               }
           }
 
-          // 2. Modern Green Auth Screen with Google & Facebook Logos
-          @OptIn(ExperimentalMaterial3Api::class)
+          // 2. Auth Screen (Login / Register) مع أزرار Google & Facebook الأصلية
           @Composable
           fun LoginScreen(navController: NavController) {
-              var isRegisterMode by remember { mutableStateOf(false) }
+              var isRegister by remember { mutableStateOf(false) }
               var email by remember { mutableStateOf("") }
               var password by remember { mutableStateOf("") }
-              var fullName by remember { mutableStateOf("") }
-              var phone by remember { mutableStateOf("") }
               var selectedRole by remember { mutableStateOf(UserRole.CLIENT) }
-
-              Box(
-                  modifier = Modifier
-                      .fillMaxSize()
-                      .background(Brush.verticalGradient(listOf(AlgerianGreenPrimary, AlgerianGreenDark)))
-              ) {
-                  Column(modifier = Modifier.fillMaxSize()) {
-                      // Top Green Header
-                      Column(
-                          modifier = Modifier
-                              .fillMaxWidth()
-                              .padding(top = 40.dp, bottom = 24.dp, start = 24.dp, end = 24.dp),
-                          horizontalAlignment = Alignment.CenterHorizontally
-                      ) {
-                          Icon(Icons.Default.VolunteerActivism, contentDescription = null, tint = Color.White, modifier = Modifier.size(54.dp))
-                          Spacer(modifier = Modifier.height(8.dp))
-                          Text("Khedma DZ", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                          Text("منصتك الموثوقة لحجز الخدمات المنزلية في الجزائر", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp, textAlign = TextAlign.Center)
-                      }
-
-                      // White Sheet with Rounded Corners
-                      Surface(
-                          modifier = Modifier
-                              .fillMaxWidth()
-                              .weight(1f),
-                          shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-                          color = Color.White,
-                          shadowElevation = 16.dp
-                      ) {
-                          Column(
-                              modifier = Modifier
-                                  .fillMaxSize()
-                                  .verticalScroll(rememberScrollState())
-                                  .padding(24.dp),
-                              horizontalAlignment = Alignment.CenterHorizontally
-                          ) {
-                              // Tab Row: Se connecter / Créer un compte
-                              Row(
-                                  modifier = Modifier
-                                      .fillMaxWidth()
-                                      .clip(RoundedCornerShape(12.dp))
-                                      .background(Color(0xFFF1F5F9))
-                                      .padding(4.dp)
-                              ) {
-                                  Box(
-                                      modifier = Modifier
-                                          .weight(1f)
-                                          .clip(RoundedCornerShape(10.dp))
-                                          .background(if (!isRegisterMode) AlgerianGreenPrimary else Color.Transparent)
-                                          .clickable { isRegisterMode = false }
-                                          .padding(vertical = 10.dp),
-                                      contentAlignment = Alignment.Center
-                                  ) {
-                                      Text("Se connecter", color = if (!isRegisterMode) Color.White else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                  }
-                                  Box(
-                                      modifier = Modifier
-                                          .weight(1f)
-                                          .clip(RoundedCornerShape(10.dp))
-                                          .background(if (isRegisterMode) AlgerianGreenPrimary else Color.Transparent)
-                                          .clickable { isRegisterMode = true }
-                                          .padding(vertical = 10.dp),
-                                      contentAlignment = Alignment.Center
-                                  ) {
-                                      Text("Inscription", color = if (isRegisterMode) Color.White else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                  }
-                              }
-
-                              Spacer(modifier = Modifier.height(16.dp))
-
-                              // Role Toggle
-                              Row(
-                                  modifier = Modifier.fillMaxWidth(),
-                                  horizontalArrangement = Arrangement.Center
-                              ) {
-                                  FilterChip(
-                                      selected = selectedRole == UserRole.CLIENT,
-                                      onClick = { selectedRole = UserRole.CLIENT },
-                                      label = { Text("👤 Client (زبون)") },
-                                      colors = FilterChipDefaults.filterChipColors(selectedContainerColor = AlgerianMint, selectedLabelColor = AlgerianGreenDark)
-                                  )
-                                  Spacer(modifier = Modifier.width(12.dp))
-                                  FilterChip(
-                                      selected = selectedRole == UserRole.PRESTATAIRE,
-                                      onClick = { selectedRole = UserRole.PRESTATAIRE },
-                                      label = { Text("🛠️ Prestataire (حرفي)") },
-                                      colors = FilterChipDefaults.filterChipColors(selectedContainerColor = AlgerianMint, selectedLabelColor = AlgerianGreenDark)
-                                  )
-                              }
-
-                              Spacer(modifier = Modifier.height(14.dp))
-
-                              if (isRegisterMode) {
-                                  OutlinedTextField(
-                                      value = fullName,
-                                      onValueChange = { fullName = it },
-                                      label = { Text("Nom et prénom") },
-                                      leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AlgerianGreenPrimary) },
-                                      modifier = Modifier.fillMaxWidth(),
-                                      shape = RoundedCornerShape(14.dp)
-                                  )
-                                  Spacer(modifier = Modifier.height(10.dp))
-                                  OutlinedTextField(
-                                      value = phone,
-                                      onValueChange = { phone = it },
-                                      label = { Text("Numéro de téléphone") },
-                                      leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = AlgerianGreenPrimary) },
-                                      modifier = Modifier.fillMaxWidth(),
-                                      shape = RoundedCornerShape(14.dp)
-                                  )
-                                  Spacer(modifier = Modifier.height(10.dp))
-                              }
-
-                              OutlinedTextField(
-                                  value = email,
-                                  onValueChange = { email = it },
-                                  label = { Text("Adresse email") },
-                                  leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = AlgerianGreenPrimary) },
-                                  modifier = Modifier.fillMaxWidth(),
-                                  shape = RoundedCornerShape(14.dp)
-                              )
-                              Spacer(modifier = Modifier.height(10.dp))
-
-                              OutlinedTextField(
-                                  value = password,
-                                  onValueChange = { password = it },
-                                  label = { Text("Mot de passe") },
-                                  leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = AlgerianGreenPrimary) },
-                                  visualTransformation = PasswordVisualTransformation(),
-                                  modifier = Modifier.fillMaxWidth(),
-                                  shape = RoundedCornerShape(14.dp)
-                              )
-
-                              Spacer(modifier = Modifier.height(20.dp))
-
-                              Button(
-                                  onClick = {
-                                      if (selectedRole == UserRole.CLIENT) {
-                                          navController.navigate("main_flow") { popUpTo("login") { inclusive = true } }
-                                      } else {
-                                          navController.navigate("provider_dashboard") { popUpTo("login") { inclusive = true } }
-                                      }
-                                  },
-                                  modifier = Modifier.fillMaxWidth().height(52.dp),
-                                  shape = RoundedCornerShape(14.dp),
-                                  colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary)
-                              ) {
-                                  Text(if (isRegisterMode) "Créer mon compte" else "Se connecter", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                  Spacer(modifier = Modifier.width(8.dp))
-                                  Icon(Icons.Default.ArrowForward, contentDescription = null)
-                              }
-
-                              Spacer(modifier = Modifier.height(20.dp))
-
-                              Row(
-                                  modifier = Modifier.fillMaxWidth(),
-                                  verticalAlignment = Alignment.CenterVertically
-                              ) {
-                                  HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE2E8F0))
-                                  Text("  Ou continuer avec  ", color = Color.Gray, fontSize = 12.sp)
-                                  HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE2E8F0))
-                              }
-
-                              Spacer(modifier = Modifier.height(16.dp))
-
-                              // Social Login: Google & Facebook Buttons
-                              Row(
-                                  modifier = Modifier.fillMaxWidth(),
-                                  horizontalArrangement = Arrangement.spacedBy(12.dp)
-                              ) {
-                                  // Google Button
-                                  OutlinedButton(
-                                      onClick = { navController.navigate("main_flow") { popUpTo("login") { inclusive = true } } },
-                                      modifier = Modifier.weight(1f).height(48.dp),
-                                      shape = RoundedCornerShape(12.dp),
-                                      border = BorderStroke(1.dp, Color(0xFFCBD5E1))
-                                  ) {
-                                      Text("G ", color = Color(0xFFEA4335), fontWeight = FontWeight.Black, fontSize = 20.sp)
-                                      Text("Google", color = Color(0xFF1E293B), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                  }
-
-                                  // Facebook Button
-                                  Button(
-                                      onClick = { navController.navigate("main_flow") { popUpTo("login") { inclusive = true } } },
-                                      modifier = Modifier.weight(1f).height(48.dp),
-                                      shape = RoundedCornerShape(12.dp),
-                                      colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
-                                  ) {
-                                      Text("f ", color = Color.White, fontWeight = FontWeight.Black, fontSize = 20.sp)
-                                      Text("Facebook", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                  }
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-
-          // 3. Home Screen with Real Images, GPS & Wilayas Dialog, Notification Counter
-          @OptIn(ExperimentalMaterial3Api::class)
-          @Composable
-          fun HomeScreen(
-              navController: NavController,
-              onOpenLocationSheet: () -> Unit,
-              selectedWilaya: String,
-              selectedCommune: String,
-              unreadCount: Int
-          ) {
-              var searchQuery by remember { mutableStateOf("") }
-              var selectedCategory by remember { mutableStateOf("Tous") }
 
               Column(
                   modifier = Modifier
                       .fillMaxSize()
-                      .background(Color(0xFFF8FAFC))
+                      .background(Color.White)
+                      .verticalScroll(rememberScrollState())
+                      .padding(24.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally
+              ) {
+                  Spacer(modifier = Modifier.height(30.dp))
+                  Icon(Icons.Default.VolunteerActivism, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(54.dp))
+                  Spacer(modifier = Modifier.height(10.dp))
+                  Text("Khedma DZ", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                  Text("Connectez-vous ou créez votre compte", fontSize = 13.sp, color = TextSecondary)
+
+                  Spacer(modifier = Modifier.height(24.dp))
+
+                  // Tab Segmented Control
+                  Row(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .clip(RoundedCornerShape(14.dp))
+                          .background(Color(0xFFF2F4F7))
+                          .padding(4.dp)
+                  ) {
+                      Box(
+                          modifier = Modifier
+                              .weight(1f)
+                              .clip(RoundedCornerShape(12.dp))
+                              .background(if (!isRegister) PrimaryBlue else Color.Transparent)
+                              .clickable { isRegister = false }
+                              .padding(vertical = 10.dp),
+                          contentAlignment = Alignment.Center
+                      ) {
+                          Text("Connexion", color = if (!isRegister) Color.White else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                      }
+                      Box(
+                          modifier = Modifier
+                              .weight(1f)
+                              .clip(RoundedCornerShape(12.dp))
+                              .background(if (isRegister) PrimaryBlue else Color.Transparent)
+                              .clickable { isRegister = true }
+                              .padding(vertical = 10.dp),
+                          contentAlignment = Alignment.Center
+                      ) {
+                          Text("Inscription", color = if (isRegister) Color.White else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                      }
+                  }
+
+                  Spacer(modifier = Modifier.height(16.dp))
+
+                  // Role Selector
+                  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                      FilterChip(
+                          selected = selectedRole == UserRole.CLIENT,
+                          onClick = { selectedRole = UserRole.CLIENT },
+                          label = { Text("Client") }
+                      )
+                      Spacer(modifier = Modifier.width(10.dp))
+                      FilterChip(
+                          selected = selectedRole == UserRole.PRESTATAIRE,
+                          onClick = { selectedRole = UserRole.PRESTATAIRE },
+                          label = { Text("Prestataire") }
+                      )
+                  }
+
+                  Spacer(modifier = Modifier.height(16.dp))
+
+                  OutlinedTextField(
+                      value = email,
+                      onValueChange = { email = it },
+                      label = { Text("Email, téléphone ou mot de passe") },
+                      modifier = Modifier.fillMaxWidth(),
+                      shape = RoundedCornerShape(14.dp)
+                  )
+                  Spacer(modifier = Modifier.height(12.dp))
+
+                  OutlinedTextField(
+                      value = password,
+                      onValueChange = { password = it },
+                      label = { Text("Mot de passe") },
+                      visualTransformation = PasswordVisualTransformation(),
+                      modifier = Modifier.fillMaxWidth(),
+                      shape = RoundedCornerShape(14.dp)
+                  )
+
+                  Spacer(modifier = Modifier.height(20.dp))
+
+                  Button(
+                      onClick = {
+                          if (selectedRole == UserRole.CLIENT) {
+                              navController.navigate("main_flow") { popUpTo("login") { inclusive = true } }
+                          } else {
+                              navController.navigate("provider_dashboard") { popUpTo("login") { inclusive = true } }
+                          }
+                      },
+                      modifier = Modifier.fillMaxWidth().height(52.dp),
+                      shape = RoundedCornerShape(14.dp),
+                      colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                  ) {
+                      Text(if (isRegister) "Créer un compte" else "Se connecter", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                  }
+
+                  Spacer(modifier = Modifier.height(18.dp))
+                  Text("Ou se connecter avec", color = TextSecondary, fontSize = 12.sp)
+                  Spacer(modifier = Modifier.height(14.dp))
+
+                  // Social Logins (Google & Facebook)
+                  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                      OutlinedButton(
+                          onClick = { navController.navigate("main_flow") { popUpTo("login") { inclusive = true } } },
+                          modifier = Modifier.weight(1f).height(48.dp),
+                          shape = RoundedCornerShape(12.dp),
+                          border = BorderStroke(1.dp, BorderColor)
+                      ) {
+                          Text("G ", color = Color(0xFFEA4335), fontWeight = FontWeight.Black, fontSize = 18.sp)
+                          Text("Google", color = TextDark, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                      }
+                      Button(
+                          onClick = { navController.navigate("main_flow") { popUpTo("login") { inclusive = true } } },
+                          modifier = Modifier.weight(1f).height(48.dp),
+                          shape = RoundedCornerShape(12.dp),
+                          colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
+                      ) {
+                          Text("f ", color = Color.White, fontWeight = FontWeight.Black, fontSize = 18.sp)
+                          Text("Facebook", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                      }
+                  }
+              }
+          }
+
+          // 3. Home Screen (Client) - المطابقة التامة للشاشة الرئيسية في الصور
+          @Composable
+          fun HomeScreen(
+              navController: NavController,
+              onOpenLocationSheet: () -> Unit,
+              onOpenDrawer: () -> Unit,
+              selectedLocation: String
+          ) {
+              Column(
+                  modifier = Modifier
+                      .fillMaxSize()
+                      .background(BackgroundGray)
                       .padding(horizontal = 16.dp)
               ) {
                   Spacer(modifier = Modifier.height(16.dp))
 
-                  // Top App Bar with Avatar & Notification Badge
+                  // Top App Bar
                   Row(
                       modifier = Modifier.fillMaxWidth(),
                       horizontalArrangement = Arrangement.SpaceBetween,
                       verticalAlignment = Alignment.CenterVertically
                   ) {
-                      Row(verticalAlignment = Alignment.CenterVertically) {
+                      Row(
+                          verticalAlignment = Alignment.CenterVertically,
+                          modifier = Modifier.clickable { onOpenDrawer() }
+                      ) {
                           Box(
                               modifier = Modifier
                                   .size(44.dp)
                                   .clip(CircleShape)
-                                  .background(AlgerianMint),
+                                  .background(VeryLightBlue),
                               contentAlignment = Alignment.Center
                           ) {
-                              Icon(Icons.Default.Person, contentDescription = null, tint = AlgerianGreenPrimary)
+                              Icon(Icons.Default.Person, contentDescription = null, tint = PrimaryBlue)
                           }
                           Spacer(modifier = Modifier.width(10.dp))
                           Column {
-                              Text("Bonjour 👋", fontSize = 12.sp, color = Color.Gray)
-                              Text("Khedma DZ", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                              Text("Bonjour, Ahmed 👋", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                              Text(selectedLocation, fontSize = 12.sp, color = TextSecondary)
                           }
                       }
 
-                      // Notifications Bell with Red Badge
                       IconButton(onClick = { navController.navigate("notifications") }) {
-                          BadgedBox(
-                              badge = {
-                                  if (unreadCount > 0) {
-                                      Badge(containerColor = Color(0xFFEF4444)) {
-                                          Text(unreadCount.toString(), color = Color.White)
-                                      }
-                                  }
-                              }
-                          ) {
-                              Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = Color(0xFF1E293B), modifier = Modifier.size(28.dp))
+                          BadgedBox(badge = { Badge(containerColor = ErrorRed) { Text("3") } }) {
+                              Icon(Icons.Default.Notifications, contentDescription = "Alerts", tint = TextDark)
                           }
                       }
                   }
 
-                  Spacer(modifier = Modifier.height(12.dp))
+                  Spacer(modifier = Modifier.height(14.dp))
 
-                  // Location Selector Card (Click to open GPS / Wilayas Dialog)
-                  Card(
-                      shape = RoundedCornerShape(14.dp),
-                      colors = CardDefaults.cardColors(containerColor = AlgerianMint),
-                      modifier = Modifier
-                          .fillMaxWidth()
-                          .clickable { onOpenLocationSheet() }
-                  ) {
-                      Row(
-                          modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                          verticalAlignment = Alignment.CenterVertically
-                      ) {
-                          Icon(Icons.Default.LocationOn, contentDescription = null, tint = AlgerianGreenPrimary, modifier = Modifier.size(24.dp))
-                          Spacer(modifier = Modifier.width(10.dp))
-                          Column(modifier = Modifier.weight(1f)) {
-                              Text("Emplacement sélectionné", fontSize = 11.sp, color = AlgerianGreenDark)
-                              Text("$selectedWilaya - $selectedCommune", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = AlgerianGreenDark)
-                          }
-                          Text("Changer ❯", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AlgerianGreenPrimary)
-                      }
-                  }
-
-                  Spacer(modifier = Modifier.height(12.dp))
-
-                  // Search Bar
-                  OutlinedTextField(
-                      value = searchQuery,
-                      onValueChange = { searchQuery = it },
-                      placeholder = { Text("Rechercher infirmier, plombier, nounou...") },
-                      leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = AlgerianGreenPrimary) },
-                      modifier = Modifier.fillMaxWidth(),
-                      shape = RoundedCornerShape(16.dp),
-                      colors = OutlinedTextFieldDefaults.colors(
-                          unfocusedContainerColor = Color.White,
-                          focusedContainerColor = Color.White,
-                          unfocusedBorderColor = Color(0xFFE2E8F0)
-                      )
+                  // Hero Search
+                  HeroSearchSection(
+                      onSearchClick = { navController.navigate("providers_list/Infirmier") },
+                      onFilterClick = { navController.navigate("filters") }
                   )
 
                   Spacer(modifier = Modifier.height(12.dp))
 
-                  // Category Filter Chips
-                  val categories = listOf("Tous", "Santé", "Maison", "Dépannage", "Bâtiment")
-                  LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                      items(categories) { cat ->
-                          FilterChip(
-                              selected = selectedCategory == cat,
-                              onClick = { selectedCategory = cat },
-                              label = { Text(cat, fontSize = 12.sp) },
-                              colors = FilterChipDefaults.filterChipColors(
-                                  selectedContainerColor = AlgerianGreenPrimary,
-                                  selectedLabelColor = Color.White
-                              )
-                          )
-                      }
+                  // Location Pill
+                  LocationPillCard(locationText = selectedLocation, onModifyClick = onOpenLocationSheet)
+
+                  Spacer(modifier = Modifier.height(14.dp))
+
+                  // Section Header: Nos services
+                  Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                      verticalAlignment = Alignment.CenterVertically
+                  ) {
+                      Text("Nos services", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                      Text("Voir tout", color = PrimaryBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                   }
 
                   Spacer(modifier = Modifier.height(10.dp))
 
-                  // Grid of Services with Real High-Quality Photos
-                  val filteredServices = AppRepository.servicesList.filter {
-                      (selectedCategory == "Tous" || it.category == selectedCategory) &&
-                      (it.nameFr.contains(searchQuery, ignoreCase = true) || it.nameAr.contains(searchQuery))
-                  }
-
+                  // 2-Columns Services Grid
                   LazyVerticalGrid(
                       columns = GridCells.Fixed(2),
                       horizontalArrangement = Arrangement.spacedBy(12.dp),
                       verticalArrangement = Arrangement.spacedBy(12.dp),
-                      modifier = Modifier.fillMaxSize()
+                      modifier = Modifier.weight(1f)
                   ) {
-                      items(filteredServices) { service ->
-                          ServiceCardWithPhoto(service = service) {
-                              navController.navigate("providers/${service.nameFr}")
+                      items(AppRepository.servicesCatalog) { item ->
+                          ServiceCatalogCard(service = item) {
+                              navController.navigate("providers_list/${item.nameFr}")
                           }
                       }
                   }
               }
           }
 
-          // Service Card with Real High-Quality Photo
+          // 4. Location Selector Bottom Sheet
+          @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun ServiceCardWithPhoto(service: ServiceItem, onClick: () -> Unit) {
-              Card(
-                  shape = RoundedCornerShape(18.dp),
-                  elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .height(175.dp)
-                      .clickable(
-                          indication = null,
-                          interactionSource = remember { MutableInteractionSource() }
-                      ) { onClick() }
+          fun LocationSelectorSheet(
+              onClose: () -> Unit,
+              onSelect: (String) -> Unit
+          ) {
+              ModalBottomSheet(
+                  onDismissRequest = onClose,
+                  containerColor = Color.White
               ) {
-                  Box(modifier = Modifier.fillMaxSize()) {
-                      AsyncImage(
-                          model = service.imageUrl,
-                          contentDescription = service.nameFr,
-                          contentScale = ContentScale.Crop,
-                          modifier = Modifier.fillMaxSize()
-                      )
+                  Column(modifier = Modifier.padding(22.dp)) {
+                      Text("Localisation", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                      Spacer(modifier = Modifier.height(16.dp))
 
-                      // Dark Gradient Overlay for readable text
-                      Box(
-                          modifier = Modifier
-                              .fillMaxSize()
-                              .background(
-                                  Brush.verticalGradient(
-                                      colors = listOf(Color.Transparent, Color(0xAA000000), Color(0xDD000000)),
-                                      startY = 100f
-                                  )
-                              )
-                      )
-
-                      // Category Badge
-                      Surface(
-                          color = AlgerianGreenPrimary,
-                          shape = RoundedCornerShape(8.dp),
-                          modifier = Modifier.padding(8.dp).align(Alignment.TopStart)
+                      Button(
+                          onClick = {
+                              onSelect("Alger, Rouiba (GPS)")
+                              onClose()
+                          },
+                          modifier = Modifier.fillMaxWidth().height(48.dp),
+                          shape = RoundedCornerShape(12.dp),
+                          colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
                       ) {
-                          Text(service.category, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                          Icon(Icons.Default.MyLocation, contentDescription = null)
+                          Spacer(modifier = Modifier.width(8.dp))
+                          Text("Utiliser ma position actuelle")
                       }
 
-                      // Bottom Service Details
-                      Column(
-                          modifier = Modifier
-                              .align(Alignment.BottomStart)
-                              .padding(10.dp)
-                      ) {
-                          Text(service.nameFr, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
-                          Text(service.nameAr, color = Color(0xFFFFD54F), fontSize = 11.sp, maxLines = 1)
+                      Spacer(modifier = Modifier.height(16.dp))
+                      Text("Ou saisir l'adresse manuellement :", fontSize = 13.sp, color = TextSecondary)
+                      Spacer(modifier = Modifier.height(10.dp))
+
+                      LazyColumn(modifier = Modifier.height(200.dp)) {
+                          items(AppRepository.algerianWilayas) { wilaya ->
+                              Row(
+                                  modifier = Modifier
+                                      .fillMaxWidth()
+                                      .clickable {
+                                          onSelect(wilaya)
+                                          onClose()
+                                      }
+                                      .padding(vertical = 10.dp),
+                                  verticalAlignment = Alignment.CenterVertically
+                              ) {
+                                  Icon(Icons.Default.Place, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
+                                  Spacer(modifier = Modifier.width(8.dp))
+                                  Text(wilaya, color = TextDark)
+                              }
+                          }
                       }
                   }
               }
           }
 
-          // 4. Notifications Screen
+          // 5. Providers List Screen (Prestataires disponibles)
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun NotificationsScreen(navController: NavController) {
-              var notifications by remember { mutableStateOf(AppRepository.sampleNotifications) }
-
+          fun ProvidersListScreen(navController: NavController, serviceTitle: String) {
               Scaffold(
                   topBar = {
                       TopAppBar(
-                          title = { Text("Notifications", fontWeight = FontWeight.Bold) },
+                          title = { Text(serviceTitle, fontWeight = FontWeight.Bold) },
                           navigationIcon = {
                               IconButton(onClick = { navController.popBackStack() }) {
                                   Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                               }
                           },
                           actions = {
-                              TextButton(onClick = { notifications = notifications.map { it.copy(isRead = true) } }) {
-                                  Text("Tout lire", color = AlgerianGreenPrimary, fontWeight = FontWeight.Bold)
+                              IconButton(onClick = { navController.navigate("filters") }) {
+                                  Icon(Icons.Default.Tune, contentDescription = "Filter")
                               }
                           }
                       )
@@ -1044,126 +1093,109 @@ jobs:
                           .fillMaxSize()
                           .padding(padding)
                           .padding(horizontal = 16.dp),
-                      verticalArrangement = Arrangement.spacedBy(10.dp)
-                  ) {
-                      items(notifications) { item ->
-                          Card(
-                              shape = RoundedCornerShape(14.dp),
-                              colors = CardDefaults.cardColors(containerColor = if (!item.isRead) AlgerianMint else Color.White),
-                              border = BorderStroke(1.dp, if (!item.isRead) AlgerianGreenPrimary.copy(alpha = 0.3f) else Color(0xFFE2E8F0)),
-                              modifier = Modifier.fillMaxWidth()
-                          ) {
-                              Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                  Box(
-                                      modifier = Modifier
-                                          .size(42.dp)
-                                          .clip(CircleShape)
-                                          .background(if (!item.isRead) AlgerianGreenPrimary else Color.LightGray.copy(alpha = 0.4f)),
-                                      contentAlignment = Alignment.Center
-                                  ) {
-                                      Icon(
-                                          imageVector = if (item.type == "CHECK") Icons.Default.CheckCircle else Icons.Default.Chat,
-                                          contentDescription = null,
-                                          tint = if (!item.isRead) Color.White else Color.DarkGray
-                                      )
-                                  }
-                                  Spacer(modifier = Modifier.width(12.dp))
-                                  Column(modifier = Modifier.weight(1f)) {
-                                      Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                                          Text(item.title, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                          Text(item.timeAgo, color = Color.Gray, fontSize = 11.sp)
-                                      }
-                                      Spacer(modifier = Modifier.height(4.dp))
-                                      Text(item.body, color = Color(0xFF334155), fontSize = 12.sp)
-                                  }
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-
-          // 5. Providers List Screen
-          @OptIn(ExperimentalMaterial3Api::class)
-          @Composable
-          fun ProvidersScreen(navController: NavController, serviceName: String) {
-              val providers = remember { AppRepository.getSampleProviders() }
-
-              Scaffold(
-                  topBar = {
-                      TopAppBar(
-                          title = { Text(serviceName, fontWeight = FontWeight.Bold) },
-                          navigationIcon = {
-                              IconButton(onClick = { navController.popBackStack() }) {
-                                  Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                              }
-                          }
-                      )
-                  }
-              ) { padding ->
-                  LazyColumn(
-                      modifier = Modifier
-                          .fillMaxSize()
-                          .padding(padding)
-                          .padding(16.dp),
                       verticalArrangement = Arrangement.spacedBy(12.dp)
                   ) {
-                      items(providers) { provider ->
-                          Card(
-                              shape = RoundedCornerShape(16.dp),
-                              elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                              colors = CardDefaults.cardColors(containerColor = Color.White),
-                              modifier = Modifier.fillMaxWidth()
-                          ) {
-                              Row(
-                                  modifier = Modifier.padding(14.dp),
-                                  verticalAlignment = Alignment.CenterVertically
-                              ) {
-                                  AsyncImage(
-                                      model = provider.photoUrl,
-                                      contentDescription = null,
-                                      modifier = Modifier
-                                          .size(64.dp)
-                                          .clip(CircleShape),
-                                      contentScale = ContentScale.Crop
-                                  )
-                                  Spacer(modifier = Modifier.width(12.dp))
-                                  Column(modifier = Modifier.weight(1f)) {
-                                      Text(provider.fullName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                      Text("${provider.wilaya} - ${provider.commune}", color = Color.Gray, fontSize = 12.sp)
-                                      Row(verticalAlignment = Alignment.CenterVertically) {
-                                          Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFB300), modifier = Modifier.size(16.dp))
-                                          Text(" ${provider.ratingAverage} (${provider.ratingCount} avis)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                      }
-                                      Text("À partir de: ${provider.priceStartingFrom}", color = AlgerianGreenPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                  }
-                                  Button(
-                                      onClick = { navController.navigate("request/${provider.fullName}/$serviceName") },
-                                      shape = RoundedCornerShape(10.dp),
-                                      colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary)
-                                  ) {
-                                      Text("Demander", fontSize = 12.sp)
-                                  }
-                              }
-                          }
+                      item {
+                          Text("12 prestataires trouvés", color = TextSecondary, fontSize = 13.sp)
+                      }
+                      items(AppRepository.sampleProviders) { pro ->
+                          ProviderItemCard(
+                              provider = pro,
+                              onProfileClick = { navController.navigate("provider_profile/${pro.fullName}") },
+                              onRequestClick = { navController.navigate("create_request/${pro.fullName}/$serviceTitle") }
+                          )
                       }
                   }
               }
           }
 
-          // 6. Create Service Request with Detailed Address & Problem Description
+          // 6. Provider Profile Screen (Profil prestataire avec Sticky CTA)
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun CreateRequestScreen(navController: NavController, providerName: String, serviceType: String) {
-              var description by remember { mutableStateOf("") }
-              var preferredTime by remember { mutableStateOf("Aujourd'hui à 14:00") }
-              var addressDetails by remember { mutableStateOf("") }
-              var showSuccessDialog by remember { mutableStateOf(false) }
+          fun ProviderProfileScreen(navController: NavController, providerName: String) {
+              Scaffold(
+                  bottomBar = {
+                      Surface(
+                          shadowElevation = 8.dp,
+                          color = Color.White,
+                          modifier = Modifier.fillMaxWidth()
+                      ) {
+                          Row(modifier = Modifier.padding(16.dp)) {
+                              Button(
+                                  onClick = { navController.navigate("create_request/$providerName/Infirmier") },
+                                  modifier = Modifier.weight(1f).height(50.dp),
+                                  shape = RoundedCornerShape(14.dp),
+                                  colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                              ) {
+                                  Text("Demander ce service", fontWeight = FontWeight.Bold)
+                              }
+                          }
+                      }
+                  }
+              ) { padding ->
+                  Column(
+                      modifier = Modifier
+                          .fillMaxSize()
+                          .verticalScroll(rememberScrollState())
+                          .padding(padding)
+                          .padding(16.dp)
+                  ) {
+                      IconButton(onClick = { navController.popBackStack() }) {
+                          Icon(Icons.Default.ArrowBack, contentDescription = null)
+                      }
 
+                      Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                          AsyncImage(
+                              model = "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400",
+                              contentDescription = null,
+                              modifier = Modifier.size(96.dp).clip(CircleShape),
+                              contentScale = ContentScale.Crop
+                          )
+                          Spacer(modifier = Modifier.height(10.dp))
+                          Text(providerName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                          Text("Infirmier Diplômé d'État", color = PrimaryBlue, fontSize = 14.sp)
+                          Text("⭐ 4.8 (124 avis) • 📍 1.2 km", color = TextSecondary, fontSize = 12.sp)
+                      }
+
+                      Spacer(modifier = Modifier.height(20.dp))
+
+                      // 3-Column Metrics
+                      Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, BorderColor)) {
+                          Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceAround) {
+                              Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                  Text("5 ans", fontWeight = FontWeight.Bold, color = TextDark)
+                                  Text("Expérience", fontSize = 11.sp, color = TextSecondary)
+                              }
+                              Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                  Text("124", fontWeight = FontWeight.Bold, color = TextDark)
+                                  Text("Avis", fontSize = 11.sp, color = TextSecondary)
+                              }
+                              Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                  Text("1.2 km", fontWeight = FontWeight.Bold, color = TextDark)
+                                  Text("Distance", fontSize = 11.sp, color = TextSecondary)
+                              }
+                          }
+                      }
+
+                      Spacer(modifier = Modifier.height(20.dp))
+                      Text("À propos", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                      Text("Infirmier diplômé avec 5 ans d'expérience en soins à domicile. Disponible pour tous types de soins infirmiers, pansements et injections.", color = TextSecondary, fontSize = 13.sp)
+
+                      Spacer(modifier = Modifier.height(16.dp))
+                      Text("Certifications", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                      Text("✓ Diplôme d'État en Soins Infirmiers\n✓ Formation Urgences et Réanimation", color = SuccessGreen, fontSize = 13.sp)
+                  }
+              }
+          }
+
+          // 7. Request Creation (Demande de service)
+          @OptIn(ExperimentalMaterial3Api::class)
+          @Composable
+          fun CreateRequestScreen(navController: NavController, providerName: String, service: String) {
               Scaffold(
                   topBar = {
                       TopAppBar(
-                          title = { Text("Demande: $serviceType") },
+                          title = { Text("Demande de service", fontWeight = FontWeight.Bold) },
                           navigationIcon = {
                               IconButton(onClick = { navController.popBackStack() }) {
                                   Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -1175,183 +1207,139 @@ jobs:
                   Column(
                       modifier = Modifier
                           .fillMaxSize()
-                          .verticalScroll(rememberScrollState())
                           .padding(padding)
                           .padding(20.dp)
                   ) {
-                      Card(
-                          colors = CardDefaults.cardColors(containerColor = AlgerianMint),
-                          shape = RoundedCornerShape(12.dp),
-                          modifier = Modifier.fillMaxWidth()
-                      ) {
-                          Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                              Icon(Icons.Default.CheckCircle, contentDescription = null, tint = AlgerianGreenPrimary)
-                              Spacer(modifier = Modifier.width(10.dp))
-                              Column {
-                                  Text("Prestataire sélectionné: $providerName", fontWeight = FontWeight.Bold, color = AlgerianGreenDark)
-                                  Text("Service: $serviceType", fontSize = 12.sp, color = AlgerianGreenDark)
-                              }
-                          }
-                      }
+                      Text("Prestataire: $providerName", fontWeight = FontWeight.Bold, color = TextDark)
+                      Text("Service: $service", color = PrimaryBlue, fontSize = 13.sp)
 
-                      Spacer(modifier = Modifier.height(16.dp))
+                      Spacer(modifier = Modifier.height(20.dp))
 
-                      Text("1. Date et heure souhaitée", fontWeight = FontWeight.Bold)
-                      Spacer(modifier = Modifier.height(6.dp))
+                      Text("Date", fontWeight = FontWeight.SemiBold)
+                      OutlinedTextField(value = "19 sept. 2026", onValueChange = {}, modifier = Modifier.fillMaxWidth())
+
+                      Spacer(modifier = Modifier.height(12.dp))
+                      Text("Heure", fontWeight = FontWeight.SemiBold)
+                      OutlinedTextField(value = "10:00 - 12:00", onValueChange = {}, modifier = Modifier.fillMaxWidth())
+
+                      Spacer(modifier = Modifier.height(12.dp))
+                      Text("Description (optionnel)", fontWeight = FontWeight.SemiBold)
                       OutlinedTextField(
-                          value = preferredTime,
-                          onValueChange = { preferredTime = it },
-                          modifier = Modifier.fillMaxWidth(),
-                          shape = RoundedCornerShape(12.dp)
-                      )
-
-                      Spacer(modifier = Modifier.height(16.dp))
-
-                      Text("2. Adresse exacte & Repère", fontWeight = FontWeight.Bold)
-                      Spacer(modifier = Modifier.height(6.dp))
-                      OutlinedTextField(
-                          value = addressDetails,
-                          onValueChange = { addressDetails = it },
-                          placeholder = { Text("Ex: Cité 1000 logts, Bâtiment 4, près de la poste") },
-                          modifier = Modifier.fillMaxWidth(),
-                          shape = RoundedCornerShape(12.dp)
-                      )
-
-                      Spacer(modifier = Modifier.height(16.dp))
-
-                      Text("3. Description du besoin", fontWeight = FontWeight.Bold)
-                      Spacer(modifier = Modifier.height(6.dp))
-                      OutlinedTextField(
-                          value = description,
-                          onValueChange = { description = it },
-                          placeholder = { Text("Décrivez les détails (ex: injection intramusculaire prescrite par médecin, changement de robinet...)") },
-                          modifier = Modifier.fillMaxWidth().height(110.dp),
-                          shape = RoundedCornerShape(12.dp)
+                          value = "Besoin d'une injection à domicile prescrite par médecin...",
+                          onValueChange = {},
+                          modifier = Modifier.fillMaxWidth().height(100.dp)
                       )
 
                       Spacer(modifier = Modifier.height(24.dp))
 
                       Button(
-                          onClick = { showSuccessDialog = true },
+                          onClick = { navController.navigate("request_details") },
                           modifier = Modifier.fillMaxWidth().height(52.dp),
-                          shape = RoundedCornerShape(12.dp),
-                          colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary)
+                          shape = RoundedCornerShape(14.dp),
+                          colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
                       ) {
-                          Text("Envoyer la demande", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                          Text("Envoyer la demande", fontWeight = FontWeight.Bold)
                       }
-                  }
-
-                  if (showSuccessDialog) {
-                      AlertDialog(
-                          onDismissRequest = { showSuccessDialog = false },
-                          icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = AlgerianGreenPrimary, modifier = Modifier.size(48.dp)) },
-                          title = { Text("Demande envoyée avec succès !", textAlign = TextAlign.Center) },
-                          text = { Text("Votre demande a été transmise à $providerName. Vous recevrez une notification dès sa confirmation.", textAlign = TextAlign.Center) },
-                          confirmButton = {
-                              Button(
-                                  onClick = {
-                                      showSuccessDialog = false
-                                      navController.navigate("chat/$providerName")
-                                  },
-                                  colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary)
-                              ) {
-                                  Text("Ouvrir le Chat")
-                              }
-                          }
-                      )
                   }
               }
           }
 
-          // 7. Interactive Map Screen
+          // 8. Request Details & Timeline Tracking (Suivi de la demande)
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun MapScreen(navController: NavController) {
-              val algerCenter = LatLng(36.7538, 3.0588)
-              val cameraPositionState = rememberCameraPositionState {
-                  position = CameraPosition.fromLatLngZoom(algerCenter, 12f)
-              }
+          fun RequestDetailsScreen(navController: NavController) {
+              val context = LocalContext.current
 
               Scaffold(
                   topBar = {
                       TopAppBar(
-                          title = { Text("Carte des prestataires", fontWeight = FontWeight.Bold) }
+                          title = { Text("Détails de la demande", fontWeight = FontWeight.Bold) },
+                          navigationIcon = {
+                              IconButton(onClick = { navController.popBackStack() }) {
+                                  Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                              }
+                          }
                       )
                   }
               ) { padding ->
-                  GoogleMap(
-                      modifier = Modifier.fillMaxSize().padding(padding),
-                      cameraPositionState = cameraPositionState
+                  Column(
+                      modifier = Modifier
+                          .fillMaxSize()
+                          .padding(padding)
+                          .padding(20.dp)
                   ) {
-                      Marker(state = MarkerState(position = algerCenter), title = "Votre position")
-                      Marker(state = MarkerState(position = LatLng(36.7200, 3.1800)), title = "Karim (Infirmier)", snippet = "Disponible • Bab Ezzouar")
-                      Marker(state = MarkerState(position = LatLng(36.7350, 3.2850)), title = "Yasmine (Infirmière)", snippet = "Disponible • Rouiba")
-                      Marker(state = MarkerState(position = LatLng(36.7260, 3.0850)), title = "Mohamed (Plombier)", snippet = "Disponible • Kouba")
-                  }
-              }
-          }
+                      Surface(color = SoftAmber, shape = RoundedCornerShape(8.dp)) {
+                          Text("🟠 En attente", color = AccentAmber, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+                      }
 
-          // 8. Requests History Screen
-          @Composable
-          fun RequestsScreen(navController: NavController) {
-              Column(
-                  modifier = Modifier
-                      .fillMaxSize()
-                      .background(Color(0xFFF8FAFC))
-                      .padding(16.dp)
-              ) {
-                  Text("Mes Demandes", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                  Spacer(modifier = Modifier.height(14.dp))
+                      Spacer(modifier = Modifier.height(14.dp))
+                      Text("Infirmier / Infirmière", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                      Text("Sami Belkacem • ⭐ 4.8 • 1.2 km", color = TextSecondary, fontSize = 13.sp)
 
-                  Card(
-                      shape = RoundedCornerShape(14.dp),
-                      colors = CardDefaults.cardColors(containerColor = Color.White),
-                      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                      modifier = Modifier.fillMaxWidth()
-                  ) {
-                      Column(modifier = Modifier.padding(14.dp)) {
-                          Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                              Text("Infirmier(e) à domicile", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                              Surface(color = Color(0xFFDCFCE7), shape = RoundedCornerShape(6.dp)) {
-                                  Text("Confirmée", color = AlgerianGreenDark, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
-                              }
+                      Spacer(modifier = Modifier.height(20.dp))
+
+                      Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                          Button(
+                              onClick = {
+                                  val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:0550123456"))
+                                  context.startActivity(callIntent)
+                              },
+                              modifier = Modifier.weight(1f),
+                              colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+                          ) {
+                              Icon(Icons.Default.Call, contentDescription = null)
+                              Spacer(modifier = Modifier.width(6.dp))
+                              Text("Appeler")
                           }
-                          Spacer(modifier = Modifier.height(6.dp))
-                          Text("Prestataire: Karim Benali", color = Color.Gray, fontSize = 13.sp)
-                          Text("Aujourd'hui à 14:00 • Bab Ezzouar", color = Color.Gray, fontSize = 12.sp)
-                          Spacer(modifier = Modifier.height(12.dp))
-                          Row {
-                              Button(
-                                  onClick = { navController.navigate("chat/Karim Benali") },
-                                  colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary),
-                                  modifier = Modifier.weight(1f)
-                              ) {
-                                  Text("Message")
-                              }
+                          Button(
+                              onClick = { navController.navigate("chat/Sami Belkacem") },
+                              modifier = Modifier.weight(1f),
+                              colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                          ) {
+                              Icon(Icons.Default.Chat, contentDescription = null)
+                              Spacer(modifier = Modifier.width(6.dp))
+                              Text("Chat")
                           }
                       }
+
+                      Spacer(modifier = Modifier.height(24.dp))
+                      Text("Chronologie du service", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                      Spacer(modifier = Modifier.height(10.dp))
+
+                      Text("✓ Demande envoyée (09:42)", color = PrimaryBlue)
+                      Spacer(modifier = Modifier.height(6.dp))
+                      Text("• En attente de confirmation par le pro", color = AccentAmber, fontWeight = FontWeight.Bold)
+                      Spacer(modifier = Modifier.height(6.dp))
+                      Text("○ Prestataire en route", color = Color.Gray)
+                      Spacer(modifier = Modifier.height(6.dp))
+                      Text("○ Prestation terminée", color = Color.Gray)
                   }
               }
           }
 
-          // 9. Realtime Chat Screen
+          // 9. Real-Time Chat Screen
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ChatScreen(navController: NavController, contactName: String) {
               val context = LocalContext.current
-              var messageText by remember { mutableStateOf("") }
+              var text by remember { mutableStateOf("") }
               val messages = remember {
                   mutableStateListOf(
-                      ChatMessage("1", "provider", "Bonjour ! J'ai bien reçu votre demande de soins."),
-                      ChatMessage("2", "client", "Bonjour, parfait. Êtes-vous équipé de tout le matériel nécessaire ?"),
-                      ChatMessage("3", "provider", "Oui absolument, je serai chez vous à 14:00 précises.")
+                      ChatMessage("1", "client", "Bonjour, est-ce que vous êtes disponible demain ?"),
+                      ChatMessage("2", "provider", "Bonjour, oui je suis disponible. À quelle heure avez-vous besoin ?"),
+                      ChatMessage("3", "client", "10h serait parfait.")
                   )
               }
 
               Scaffold(
                   topBar = {
                       TopAppBar(
-                          title = { Text(contactName, fontWeight = FontWeight.Bold) },
+                          title = {
+                              Column {
+                                  Text(contactName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                  Text("🟢 En ligne", color = SuccessGreen, fontSize = 11.sp)
+                              }
+                          },
                           navigationIcon = {
                               IconButton(onClick = { navController.popBackStack() }) {
                                   Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -1362,7 +1350,7 @@ jobs:
                                   val callIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:0550123456"))
                                   context.startActivity(callIntent)
                               }) {
-                                  Icon(Icons.Default.Call, contentDescription = "Appeler", tint = AlgerianGreenPrimary)
+                                  Icon(Icons.Default.Call, contentDescription = null, tint = PrimaryBlue)
                               }
                           }
                       )
@@ -1372,98 +1360,171 @@ jobs:
                       modifier = Modifier
                           .fillMaxSize()
                           .padding(padding)
-                          .padding(12.dp)
+                          .padding(14.dp)
                   ) {
                       LazyColumn(modifier = Modifier.weight(1f)) {
                           items(messages) { msg ->
-                              val isMe = msg.senderId == "client"
+                              val isMe = msg.sender == "client"
                               Box(modifier = Modifier.fillMaxWidth(), contentAlignment = if (isMe) Alignment.CenterEnd else Alignment.CenterStart) {
-                                  Card(
-                                      colors = CardDefaults.cardColors(containerColor = if (isMe) AlgerianGreenPrimary else Color(0xFFE2E8F0)),
-                                      shape = RoundedCornerShape(14.dp),
+                                  Surface(
+                                      shape = RoundedCornerShape(16.dp),
+                                      color = if (isMe) PrimaryBlue else Color(0xFFF2F4F7),
                                       modifier = Modifier.padding(vertical = 4.dp)
                                   ) {
-                                      Text(msg.text, modifier = Modifier.padding(10.dp), color = if (isMe) Color.White else Color(0xFF0F172A))
+                                      Text(msg.message, color = if (isMe) Color.White else TextDark, modifier = Modifier.padding(12.dp), fontSize = 13.sp)
                                   }
                               }
                           }
                       }
+
                       Row(verticalAlignment = Alignment.CenterVertically) {
                           OutlinedTextField(
-                              value = messageText,
-                              onValueChange = { messageText = it },
+                              value = text,
+                              onValueChange = { text = it },
+                              placeholder = { Text("Écrire un message...") },
                               modifier = Modifier.weight(1f),
-                              shape = RoundedCornerShape(24.dp),
-                              placeholder = { Text("Écrivez un message...") }
+                              shape = RoundedCornerShape(24.dp)
                           )
                           Spacer(modifier = Modifier.width(8.dp))
                           IconButton(onClick = {
-                              if (messageText.isNotBlank()) {
-                                  messages.add(ChatMessage(System.currentTimeMillis().toString(), "client", messageText))
-                                  messageText = ""
+                              if (text.isNotBlank()) {
+                                  messages.add(ChatMessage(System.currentTimeMillis().toString(), "client", text))
+                                  text = ""
                               }
                           }) {
-                              Icon(Icons.Default.Send, contentDescription = "Send", tint = AlgerianGreenPrimary)
+                              Icon(Icons.Default.Send, contentDescription = null, tint = PrimaryBlue)
                           }
                       }
                   }
               }
           }
 
-          // 10. Profile Screen
+          // 10. Notifications Center
+          @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun ProfileScreen(navController: NavController) {
-              Column(
-                  modifier = Modifier
-                      .fillMaxSize()
-                      .background(Color(0xFFF8FAFC))
-                      .padding(20.dp),
-                  horizontalAlignment = Alignment.CenterHorizontally
-              ) {
-                  Spacer(modifier = Modifier.height(10.dp))
-                  Box(
-                      modifier = Modifier
-                          .size(90.dp)
-                          .clip(CircleShape)
-                          .background(AlgerianGreenPrimary),
-                      contentAlignment = Alignment.Center
-                  ) {
-                      Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(52.dp))
+          fun NotificationsScreen(navController: NavController) {
+              Scaffold(
+                  topBar = {
+                      TopAppBar(
+                          title = { Text("Notifications", fontWeight = FontWeight.Bold) },
+                          navigationIcon = {
+                              IconButton(onClick = { navController.popBackStack() }) {
+                                  Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                              }
+                          }
+                      )
                   }
-                  Spacer(modifier = Modifier.height(12.dp))
-                  Text("Utilisateur Khedma DZ", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                  Text("Alger, Algérie • 0550 12 34 56", color = Color.Gray, fontSize = 13.sp)
-
-                  Spacer(modifier = Modifier.height(30.dp))
-
-                  Card(
-                      shape = RoundedCornerShape(14.dp),
-                      colors = CardDefaults.cardColors(containerColor = Color.White),
-                      modifier = Modifier.fillMaxWidth()
+              ) { padding ->
+                  LazyColumn(
+                      modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+                      verticalArrangement = Arrangement.spacedBy(10.dp)
                   ) {
-                      Column(modifier = Modifier.padding(14.dp)) {
-                          Text("Langue: Français / العربية", fontWeight = FontWeight.SemiBold)
-                          HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = Color(0xFFF1F5F9))
-                          Text("Conditions d'utilisation", fontWeight = FontWeight.SemiBold)
-                          HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = Color(0xFFF1F5F9))
-                          Text("Centre d'aide & Support 24/7", fontWeight = FontWeight.SemiBold)
+                      items(AppRepository.sampleNotifications) { item ->
+                          Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, BorderColor)) {
+                              Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                  Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(VeryLightBlue), contentAlignment = Alignment.Center) {
+                                      Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryBlue)
+                                  }
+                                  Spacer(modifier = Modifier.width(12.dp))
+                                  Column(modifier = Modifier.weight(1f)) {
+                                      Text(item.title, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                      Text(item.description, color = TextSecondary, fontSize = 12.sp)
+                                      Text(item.time, color = Color.Gray, fontSize = 11.sp)
+                                  }
+                              }
+                          }
                       }
-                  }
-
-                  Spacer(modifier = Modifier.height(24.dp))
-
-                  Button(
-                      onClick = { navController.navigate("login") { popUpTo(0) { inclusive = true } } },
-                      modifier = Modifier.fillMaxWidth().height(48.dp),
-                      colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
-                      shape = RoundedCornerShape(12.dp)
-                  ) {
-                      Text("Se déconnecter", fontWeight = FontWeight.Bold)
                   }
               }
           }
 
-          // 11. Provider Dashboard Screen
+          // 11. Navigation Drawer (Side Menu in Deep Navy)
+          @Composable
+          fun SideDrawerContent(navController: NavController, onClose: () -> Unit) {
+              Column(
+                  modifier = Modifier
+                      .fillMaxHeight()
+                      .width(300.dp)
+                      .background(DarkNavy)
+                      .padding(24.dp)
+              ) {
+                  Spacer(modifier = Modifier.height(30.dp))
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                      Box(modifier = Modifier.size(52.dp).clip(CircleShape).background(PrimaryBlue), contentAlignment = Alignment.Center) {
+                          Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                      }
+                      Spacer(modifier = Modifier.width(12.dp))
+                      Column {
+                          Text("Ahmed Benali", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                          Text("Client", color = Color(0xFF3B9CFF), fontSize = 12.sp)
+                      }
+                  }
+
+                  Spacer(modifier = Modifier.height(30.dp))
+                  val menuItems = listOf("Accueil", "Mes demandes", "Messages", "Notifications", "Favoris", "Profil", "Paramètres", "Aide")
+                  menuItems.forEach { item ->
+                      Text(
+                          text = item,
+                          color = Color.White,
+                          fontSize = 15.sp,
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .clickable { onClose() }
+                              .padding(vertical = 12.dp)
+                      )
+                  }
+
+                  Spacer(modifier = Modifier.weight(1f))
+                  Text(
+                      text = "Déconnexion",
+                      color = ErrorRed,
+                      fontWeight = FontWeight.Bold,
+                      modifier = Modifier.clickable {
+                          navController.navigate("login") { popUpTo(0) { inclusive = true } }
+                      }
+                  )
+              }
+          }
+
+          // 12. Map Screen
+          @Composable
+          fun MapScreen(navController: NavController) {
+              val algerCenter = LatLng(36.7538, 3.0588)
+              val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(algerCenter, 12f) }
+
+              Box(modifier = Modifier.fillMaxSize()) {
+                  GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState) {
+                      Marker(state = MarkerState(position = algerCenter), title = "Votre position")
+                      Marker(state = MarkerState(position = LatLng(36.7350, 3.2850)), title = "Sami Belkacem (Infirmier)")
+                  }
+
+                  // Floating Card at bottom
+                  Card(
+                      shape = RoundedCornerShape(20.dp),
+                      colors = CardDefaults.cardColors(containerColor = Color.White),
+                      elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                      modifier = Modifier
+                          .align(Alignment.BottomCenter)
+                          .padding(16.dp)
+                          .fillMaxWidth()
+                  ) {
+                      Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                          Column(modifier = Modifier.weight(1f)) {
+                              Text("Sami Belkacem", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                              Text("Infirmier • ⭐ 4.8 • 1.2 km", color = TextSecondary, fontSize = 12.sp)
+                          }
+                          Button(
+                              onClick = { navController.navigate("create_request/Sami Belkacem/Infirmier") },
+                              colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                          ) {
+                              Text("Demander")
+                          }
+                      }
+                  }
+              }
+          }
+
+          // 13. Provider Dashboard (Tableau de bord Prestataire)
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
           fun ProviderDashboardScreen(navController: NavController) {
@@ -1472,46 +1533,64 @@ jobs:
               Scaffold(
                   topBar = {
                       TopAppBar(
-                          title = { Text("Espace Prestataire") },
+                          title = { Text("Tableau de bord", fontWeight = FontWeight.Bold) },
                           actions = {
                               Switch(checked = isOnline, onCheckedChange = { isOnline = it })
                           }
                       )
                   }
               ) { padding ->
-                  Column(
-                      modifier = Modifier
-                          .fillMaxSize()
-                          .padding(padding)
-                          .padding(16.dp)
-                  ) {
+                  Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
                       Card(
-                          colors = CardDefaults.cardColors(containerColor = if (isOnline) AlgerianMint else Color(0xFFF1F5F9)),
+                          colors = CardDefaults.cardColors(containerColor = if (isOnline) Color(0xFFEBFDF2) else Color(0xFFF2F4F7)),
                           shape = RoundedCornerShape(14.dp),
                           modifier = Modifier.fillMaxWidth()
                       ) {
                           Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                              Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(if (isOnline) AlgerianGreenPrimary else Color.Gray))
+                              Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(if (isOnline) SuccessGreen else Color.Gray))
                               Spacer(modifier = Modifier.width(8.dp))
-                              Text(if (isOnline) "🟢 Vous êtes disponible pour les clients" else "⚪ Vous êtes hors ligne", fontWeight = FontWeight.Bold)
+                              Text(if (isOnline) "🟢 Vous êtes en ligne (Visible)" else "⚪ Vous êtes hors ligne", fontWeight = FontWeight.Bold)
                           }
                       }
-                      Spacer(modifier = Modifier.height(20.dp))
-                      Text("Nouvelles demandes reçues", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                      Spacer(modifier = Modifier.height(10.dp))
-                      Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+
+                      Spacer(modifier = Modifier.height(16.dp))
+
+                      // Metrics 2x2
+                      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                          Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) {
+                              Column(modifier = Modifier.padding(14.dp)) {
+                                  Text("12", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryBlue)
+                                  Text("Demandes", fontSize = 12.sp, color = TextSecondary)
+                              }
+                          }
+                          Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) {
+                              Column(modifier = Modifier.padding(14.dp)) {
+                                  Text("8", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = SuccessGreen)
+                                  Text("Acceptées", fontSize = 12.sp, color = TextSecondary)
+                              }
+                          }
+                      }
+
+                      Spacer(modifier = Modifier.height(16.dp))
+                      Text("Nouvelle demande urgente", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                      Spacer(modifier = Modifier.height(8.dp))
+
+                      Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, BorderColor)) {
                           Column(modifier = Modifier.padding(14.dp)) {
-                              Text("Client: Mohamed Reda", fontWeight = FontWeight.Bold)
-                              Text("Service: Injection à domicile", color = AlgerianGreenPrimary)
-                              Text("Adresse: Rouiba, Cité 500 logts (2.1 km)", color = Color.Gray, fontSize = 12.sp)
+                              Text("Client: Fatima Zahra (2.4 km)", fontWeight = FontWeight.Bold)
+                              Text("Service: Garde malade", color = PrimaryBlue, fontSize = 13.sp)
                               Spacer(modifier = Modifier.height(10.dp))
                               Row {
-                                  Button(onClick = { navController.navigate("chat/Mohamed Reda") }, colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary), modifier = Modifier.weight(1f)) {
+                                  Button(
+                                      onClick = { navController.navigate("chat/Fatima Zahra") },
+                                      colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
+                                      modifier = Modifier.weight(1f)
+                                  ) {
                                       Text("Accepter")
                                   }
                                   Spacer(modifier = Modifier.width(8.dp))
                                   OutlinedButton(onClick = {}, modifier = Modifier.weight(1f)) {
-                                      Text("Refuser", color = Color.Red)
+                                      Text("Refuser", color = ErrorRed)
                                   }
                               }
                           }
@@ -1519,74 +1598,164 @@ jobs:
                   }
               }
           }
+
+          // 14. Requests History Screen
+          @Composable
+          fun RequestsHistoryScreen(navController: NavController) {
+              Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                  Text("Mes demandes", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                  Spacer(modifier = Modifier.height(14.dp))
+
+                  Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), border = BorderStroke(1.dp, BorderColor)) {
+                      Column(modifier = Modifier.padding(14.dp)) {
+                          Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                              Text("Infirmier / Infirmière", fontWeight = FontWeight.Bold)
+                              Surface(color = SoftAmber, shape = RoundedCornerShape(6.dp)) {
+                                  Text("En attente", color = AccentAmber, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(4.dp))
+                              }
+                          }
+                          Text("Sami Belkacem • 19 sept. 2026 à 10:00", color = TextSecondary, fontSize = 12.sp)
+                          Spacer(modifier = Modifier.height(10.dp))
+                          Button(onClick = { navController.navigate("request_details") }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)) {
+                              Text("Suivre la demande")
+                          }
+                      }
+                  }
+              }
+          }
+
+          // 15. Client Profile Screen
+          @Composable
+          fun ClientProfileScreen(navController: NavController) {
+              Column(
+                  modifier = Modifier.fillMaxSize().padding(20.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally
+              ) {
+                  Spacer(modifier = Modifier.height(20.dp))
+                  Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(PrimaryBlue), contentAlignment = Alignment.Center) {
+                      Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(48.dp))
+                  }
+                  Spacer(modifier = Modifier.height(10.dp))
+                  Text("Ahmed Benali", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                  Text("Client • Alger, Rouiba", color = TextSecondary, fontSize = 13.sp)
+
+                  Spacer(modifier = Modifier.height(24.dp))
+                  Button(
+                      onClick = { navController.navigate("login") { popUpTo(0) { inclusive = true } } },
+                      colors = ButtonDefaults.buttonColors(containerColor = ErrorRed),
+                      modifier = Modifier.fillMaxWidth(),
+                      shape = RoundedCornerShape(12.dp)
+                  ) {
+                      Text("Se déconnecter")
+                  }
+              }
+          }
+
+          // 16. Filter Screen
+          @OptIn(ExperimentalMaterial3Api::class)
+          @Composable
+          fun FiltersScreen(navController: NavController) {
+              var distance by remember { mutableStateOf(10f) }
+
+              Scaffold(
+                  topBar = {
+                      TopAppBar(
+                          title = { Text("Filtres", fontWeight = FontWeight.Bold) },
+                          navigationIcon = {
+                              IconButton(onClick = { navController.popBackStack() }) {
+                                  Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                              }
+                          }
+                      )
+                  }
+              ) { padding ->
+                  Column(modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp)) {
+                      Text("Distance max: ${distance.toInt()} km", fontWeight = FontWeight.Bold)
+                      Slider(value = distance, onValueChange = { distance = it }, valueRange = 1f..50f)
+
+                      Spacer(modifier = Modifier.height(20.dp))
+                      Text("Disponibilité", fontWeight = FontWeight.Bold)
+                      Row(verticalAlignment = Alignment.CenterVertically) {
+                          Checkbox(checked = true, onCheckedChange = {})
+                          Text("Disponible immédiatement")
+                      }
+
+                      Spacer(modifier = Modifier.height(24.dp))
+                      Button(
+                          onClick = { navController.popBackStack() },
+                          colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                          modifier = Modifier.fillMaxWidth().height(50.dp),
+                          shape = RoundedCornerShape(14.dp)
+                      ) {
+                          Text("Appliquer les filtres")
+                      }
+                  }
+              }
+          }
           EOF
 
-          # الحاوية الرئيسية (MainActivity) مع شريط التنقل السفلي ونافذة الـ GPS والولايات
+          # 15. التطبيق الرئيسي (MainActivity) وربط الـ Drawer والـ BottomBar
           cat << 'EOF' > app/src/main/java/com/khedmadz/app/MainActivity.kt
           package com.khedmadz.app
 
           import android.os.Bundle
-          import android.widget.Toast
           import androidx.activity.ComponentActivity
           import androidx.activity.compose.setContent
-          import androidx.compose.foundation.background
-          import androidx.compose.foundation.clickable
           import androidx.compose.foundation.layout.*
-          import androidx.compose.foundation.lazy.LazyColumn
-          import androidx.compose.foundation.lazy.items
-          import androidx.compose.foundation.shape.RoundedCornerShape
           import androidx.compose.material.icons.Icons
           import androidx.compose.material.icons.filled.*
           import androidx.compose.material3.*
           import androidx.compose.runtime.*
-          import androidx.compose.ui.Alignment
           import androidx.compose.ui.Modifier
           import androidx.compose.ui.graphics.Color
-          import androidx.compose.ui.platform.LocalContext
           import androidx.compose.ui.text.font.FontWeight
           import androidx.compose.ui.unit.dp
           import androidx.compose.ui.unit.sp
           import androidx.navigation.compose.*
-          import com.khedmadz.app.data.repository.AppRepository
           import com.khedmadz.app.presentation.screens.*
-          import com.khedmadz.app.presentation.theme.AlgerianGreenDark
-          import com.khedmadz.app.presentation.theme.AlgerianGreenPrimary
-          import com.khedmadz.app.presentation.theme.AlgerianMint
           import com.khedmadz.app.presentation.theme.KhedmaDZTheme
+          import com.khedmadz.app.presentation.theme.PrimaryBlue
+          import com.khedmadz.app.presentation.theme.VeryLightBlue
+          import kotlinx.coroutines.launch
 
           class MainActivity : ComponentActivity() {
               override fun onCreate(savedInstanceState: Bundle?) {
                   super.onCreate(savedInstanceState)
                   setContent {
                       KhedmaDZTheme {
-                          KhedmaAppNavigation()
+                          KhedmaMasterApp()
                       }
                   }
               }
           }
 
-          @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun KhedmaAppNavigation() {
+          fun KhedmaMasterApp() {
               val rootNavController = rememberNavController()
 
               NavHost(navController = rootNavController, startDestination = "splash") {
                   composable("splash") { SplashScreen(rootNavController) }
                   composable("login") { LoginScreen(rootNavController) }
-                  composable("main_flow") { MainBottomNavContainer(rootNavController) }
-                  composable("notifications") { NotificationsScreen(rootNavController) }
+                  composable("main_flow") { MainClientContainer(rootNavController) }
                   composable("provider_dashboard") { ProviderDashboardScreen(rootNavController) }
-                  composable("providers/{serviceName}") { backStack ->
-                      val serviceName = backStack.arguments?.getString("serviceName") ?: "Service"
-                      ProvidersScreen(rootNavController, serviceName)
+                  composable("notifications") { NotificationsScreen(rootNavController) }
+                  composable("filters") { FiltersScreen(rootNavController) }
+                  composable("request_details") { RequestDetailsScreen(rootNavController) }
+                  composable("providers_list/{serviceTitle}") { backStack ->
+                      val title = backStack.arguments?.getString("serviceTitle") ?: "Infirmier"
+                      ProvidersListScreen(rootNavController, title)
                   }
-                  composable("request/{providerName}/{serviceType}") { backStack ->
-                      val providerName = backStack.arguments?.getString("providerName") ?: "Prestataire"
-                      val serviceType = backStack.arguments?.getString("serviceType") ?: "Service"
-                      CreateRequestScreen(rootNavController, providerName, serviceType)
+                  composable("provider_profile/{name}") { backStack ->
+                      val name = backStack.arguments?.getString("name") ?: "Sami Belkacem"
+                      ProviderProfileScreen(rootNavController, name)
+                  }
+                  composable("create_request/{name}/{service}") { backStack ->
+                      val name = backStack.arguments?.getString("name") ?: "Sami Belkacem"
+                      val service = backStack.arguments?.getString("service") ?: "Infirmier"
+                      CreateRequestScreen(rootNavController, name, service)
                   }
                   composable("chat/{name}") { backStack ->
-                      val name = backStack.arguments?.getString("name") ?: "Discussion"
+                      val name = backStack.arguments?.getString("name") ?: "Sami Belkacem"
                       ChatScreen(rootNavController, name)
                   }
               }
@@ -1594,114 +1763,77 @@ jobs:
 
           @OptIn(ExperimentalMaterial3Api::class)
           @Composable
-          fun MainBottomNavContainer(rootNavController: androidx.navigation.NavController) {
-              val context = LocalContext.current
+          fun MainClientContainer(rootNavController: androidx.navigation.NavController) {
+              val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+              val scope = rememberCoroutineScope()
               val bottomNavController = rememberNavController()
-              var selectedTab by remember { mutableStateOf(0) }
+              var selectedBottomTab by remember { mutableStateOf(0) }
               var showLocationSheet by remember { mutableStateOf(false) }
+              var selectedLocation by remember { mutableStateOf("Rouiba, Alger") }
 
-              var selectedWilaya by remember { mutableStateOf("16 - Alger") }
-              var selectedCommune by remember { mutableStateOf("Bab Ezzouar") }
-
-              Scaffold(
-                  bottomBar = {
-                      NavigationBar(
-                          containerColor = Color.White,
-                          tonalElevation = 8.dp
-                      ) {
-                          val items = listOf("Accueil" to Icons.Default.Home, "Carte" to Icons.Default.Map, "Demandes" to Icons.Default.Assignment, "Profil" to Icons.Default.Person)
-                          items.forEachIndexed { index, item ->
-                              NavigationBarItem(
-                                  selected = selectedTab == index,
-                                  onClick = {
-                                      selectedTab = index
-                                      when (index) {
-                                          0 -> bottomNavController.navigate("home") { popUpTo("home") { inclusive = true } }
-                                          1 -> bottomNavController.navigate("map")
-                                          2 -> bottomNavController.navigate("requests")
-                                          3 -> bottomNavController.navigate("profile")
-                                      }
-                                  },
-                                  icon = { Icon(item.second, contentDescription = item.first) },
-                                  label = { Text(item.first, fontSize = 11.sp, fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal) },
-                                  colors = NavigationBarItemDefaults.colors(
-                                      selectedIconColor = AlgerianGreenPrimary,
-                                      selectedTextColor = AlgerianGreenPrimary,
-                                      indicatorColor = AlgerianMint
+              ModalNavigationDrawer(
+                  drawerState = drawerState,
+                  drawerContent = {
+                      SideDrawerContent(rootNavController) {
+                          scope.launch { drawerState.close() }
+                      }
+                  }
+              ) {
+                  Scaffold(
+                      bottomBar = {
+                          NavigationBar(containerColor = Color.White, tonalElevation = 6.dp) {
+                              val items = listOf(
+                                  "Accueil" to Icons.Default.Home,
+                                  "Demandes" to Icons.Default.Assignment,
+                                  "Carte" to Icons.Default.Map,
+                                  "Messages" to Icons.Default.Chat,
+                                  "Profil" to Icons.Default.Person
+                              )
+                              items.forEachIndexed { index, pair ->
+                                  NavigationBarItem(
+                                      selected = selectedBottomTab == index,
+                                      onClick = {
+                                          selectedBottomTab = index
+                                          when (index) {
+                                              0 -> bottomNavController.navigate("home") { popUpTo("home") { inclusive = true } }
+                                              1 -> bottomNavController.navigate("requests")
+                                              2 -> bottomNavController.navigate("map")
+                                              3 -> rootNavController.navigate("chat/Sami Belkacem")
+                                              4 -> bottomNavController.navigate("profile")
+                                          }
+                                      },
+                                      icon = { Icon(pair.second, contentDescription = pair.first) },
+                                      label = { Text(pair.first, fontSize = 11.sp, fontWeight = if (selectedBottomTab == index) FontWeight.Bold else FontWeight.Normal) },
+                                      colors = NavigationBarItemDefaults.colors(selectedIconColor = PrimaryBlue, selectedTextColor = PrimaryBlue, indicatorColor = VeryLightBlue)
                                   )
-                              )
-                          }
-                      }
-                  }
-              ) { padding ->
-                  Box(modifier = Modifier.padding(padding)) {
-                      NavHost(navController = bottomNavController, startDestination = "home") {
-                          composable("home") {
-                              HomeScreen(
-                                  navController = rootNavController,
-                                  onOpenLocationSheet = { showLocationSheet = true },
-                                  selectedWilaya = selectedWilaya,
-                                  selectedCommune = selectedCommune,
-                                  unreadCount = 2
-                              )
-                          }
-                          composable("map") { MapScreen(rootNavController) }
-                          composable("requests") { RequestsScreen(rootNavController) }
-                          composable("profile") { ProfileScreen(rootNavController) }
-                      }
-                  }
-
-                  // Algerian Location Selector Bottom Sheet (GPS or Wilaya / Commune)
-                  if (showLocationSheet) {
-                      ModalBottomSheet(
-                          onDismissRequest = { showLocationSheet = false },
-                          containerColor = Color.White
-                      ) {
-                          Column(modifier = Modifier.padding(20.dp)) {
-                              Text("📍 Choisir votre localisation", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                              Spacer(modifier = Modifier.height(14.dp))
-
-                              // Button 1: GPS Auto-Detect
-                              Button(
-                                  onClick = {
-                                      selectedWilaya = "16 - Alger (GPS)"
-                                      selectedCommune = "Alger Centre"
-                                      Toast.makeText(context, "Position GPS activée avec succès !", Toast.LENGTH_SHORT).show()
-                                      showLocationSheet = false
-                                  },
-                                  modifier = Modifier.fillMaxWidth().height(48.dp),
-                                  shape = RoundedCornerShape(12.dp),
-                                  colors = ButtonDefaults.buttonColors(containerColor = AlgerianGreenPrimary)
-                              ) {
-                                  Icon(Icons.Default.MyLocation, contentDescription = null)
-                                  Spacer(modifier = Modifier.width(8.dp))
-                                  Text("Activer / Utiliser ma position GPS", fontWeight = FontWeight.Bold)
-                              }
-
-                              Spacer(modifier = Modifier.height(14.dp))
-                              Text("Ou sélectionner la Wilaya manuellement :", fontSize = 13.sp, color = Color.Gray)
-                              Spacer(modifier = Modifier.height(8.dp))
-
-                              // List of Algerian Wilayas
-                              LazyColumn(modifier = Modifier.height(200.dp)) {
-                                  items(AppRepository.algerianWilayas) { wilaya ->
-                                      Row(
-                                          modifier = Modifier
-                                              .fillMaxWidth()
-                                              .clickable {
-                                                  selectedWilaya = wilaya
-                                                  showLocationSheet = false
-                                              }
-                                              .padding(vertical = 10.dp),
-                                          verticalAlignment = Alignment.CenterVertically
-                                      ) {
-                                          Icon(Icons.Default.Place, contentDescription = null, tint = AlgerianGreenPrimary, modifier = Modifier.size(18.dp))
-                                          Spacer(modifier = Modifier.width(8.dp))
-                                          Text(wilaya, fontWeight = if (selectedWilaya == wilaya) FontWeight.Bold else FontWeight.Normal)
-                                      }
-                                  }
                               }
                           }
+                      }
+                  ) { innerPadding ->
+                      Box(modifier = Modifier.padding(innerPadding)) {
+                          NavHost(navController = bottomNavController, startDestination = "home") {
+                              composable("home") {
+                                  HomeScreen(
+                                      navController = rootNavController,
+                                      onOpenLocationSheet = { showLocationSheet = true },
+                                      onOpenDrawer = { scope.launch { drawerState.open() } },
+                                      selectedLocation = selectedLocation
+                                  )
+                              }
+                              composable("requests") { RequestsHistoryScreen(rootNavController) }
+                              composable("map") { MapScreen(rootNavController) }
+                              composable("profile") { ClientProfileScreen(rootNavController) }
+                          }
+                      }
+
+                      if (showLocationSheet) {
+                          LocationSelectorSheet(
+                              onClose = { showLocationSheet = false },
+                              onSelect = { loc ->
+                                  selectedLocation = loc
+                                  showLocationSheet = false
+                              }
+                          )
                       }
                   }
               }
@@ -1736,13 +1868,13 @@ jobs:
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KhedmaDZ-Pro-Debug-APK
+          name: KhedmaDZ-RoyalBlue-Debug-APK
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 14
 
       - name: Upload Release AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KhedmaDZ-Pro-Release-AAB
+          name: KhedmaDZ-RoyalBlue-Release-AAB
           path: app/build/outputs/bundle/release/*.aab
           retention-days: 14
